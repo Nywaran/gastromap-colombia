@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/Registro_Nacional_de_Turismo_-_RNT_20260516.csv
+data/DIVIPOLA_Municipios.xlsx

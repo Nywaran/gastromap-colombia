@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — GastroMap Colombia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="topbar">
+    <div class="topbar-inner">
+        <div class="logo">
+            <span class="logo-icon">🍽️</span>
+            <span class="logo-text">GastroMap <span class="logo-accent">Colombia</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link active">Dashboard</a>
+            <a href="/methodology" class="nav-link">Methodology</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <!-- Hero Stats -->
+    <section class="hero-stats">
+        <div class="stat-card stat-primary">
+            <div class="stat-number">{{ stats.with_gastronomy }}</div>
+            <div class="stat-label">Municipalities with registered gastronomy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ "{:,}".format(stats.total_gastro_establishments) }}</div>
+            <div class="stat-label">Gastronomy establishments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ "{:,}".format(stats.total_tourism_providers) }}</div>
+            <div class="stat-label">Total tourism providers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_municipalities }}</div>
+            <div class="stat-label">Municipalities analyzed</div>
+        </div>
+    </section>
+
+    <!-- Map + Filters -->
+    <section class="map-section">
+        <div class="section-header">
+            <h2>Gastronomic Potential Map <span class="badge">GTPI</span></h2>
+            <p>Gastronomic Tourism Potential Index by municipality</p>
+        </div>
+
+        <div class="map-container">
+            <div class="filters-panel">
+                <h3>Filters</h3>
+
+                <div class="filter-group">
+                    <label>Natural Region</label>
+                    <select id="filterRegion">
+                        <option value="">All</option>
+                        <option value="Andean">Andean</option>
+                        <option value="Caribbean">Caribbean</option>
+                        <option value="Pacific">Pacific</option>
+                        <option value="Orinoquia">Orinoquia</option>
+                        <option value="Amazon">Amazon</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Department</label>
+                    <select id="filterDept">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>GTPI Classification</label>
+                    <select id="filterClassification">
+                        <option value="">All</option>
+                        <option value="Very High">Very High (80-100)</option>
+                        <option value="High">High (60-80)</option>
+                        <option value="Medium">Medium (40-60)</option>
+                        <option value="Low">Low (20-40)</option>
+                        <option value="Very Low">Very Low (0-20)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Minimum GTPI: <span id="gtpiValue">0</span></label>
+                    <input type="range" id="filterGTPI" min="0" max="100" value="0" step="5">
+                </div>
+
+                <button class="btn-filter" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-reset" onclick="resetFilters()">Clear</button>
+
+                <div class="legend">
+                    <h4>GTPI Legend</h4>
+                    <div class="legend-item"><span class="dot" style="background:#1a9641"></span> Very High (80-100)</div>
+                    <div class="legend-item"><span class="dot" style="background:#a6d96a"></span> High (60-80)</div>
+                    <div class="legend-item"><span class="dot" style="background:#fee08b"></span> Medium (40-60)</div>
+                    <div class="legend-item"><span class="dot" style="background:#fdae61"></span> Low (20-40)</div>
+                    <div class="legend-item"><span class="dot" style="background:#d7191c"></span> Very Low (0-20)</div>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <!-- Top 10 Ranking -->
+    <section class="ranking-section">
+        <div class="section-header">
+            <h2>Top 10 Municipalities with Highest Potential</h2>
+            <p>Ranking based on the Gastronomic Tourism Potential Index</p>
+        </div>
+        <div class="ranking-grid">
+            {% for m in stats.top_10 %}
+            <div class="ranking-card rank-{{ loop.index }}">
+                <div class="rank-badge">#{{ loop.index }}</div>
+                <div class="rank-info">
+                    <h3>{{ m.muni_name }}</h3>
+                    <span class="rank-dept">{{ m.dept_name }}</span>
+                </div>
+                <div class="rank-score">
+                    <div class="score-circle">
+                        <svg viewBox="0 0 36 36">
+                            <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="score-fill" stroke-dasharray="{{ m.GTPI }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <span class="score-text">{{ m.GTPI }}</span>
+                    </div>
+                </div>
+                <div class="rank-details">
+                    <div class="detail"><span class="detail-num">{{ m.gastro_count }}</span><span class="detail-label">Restaurants</span></div>
+                    <div class="detail"><span class="detail-num">{{ m.gastro_variety }}</span><span class="detail-label">Types</span></div>
+                    <div class="detail"><span class="detail-num">{{ m.total_providers }}</span><span class="detail-label">Tourism</span></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Region Analysis -->
+    <section class="region-section">
+        <div class="section-header">
+            <h2>Analysis by Natural Region</h2>
+        </div>
+        <div class="region-grid">
+            {% for r in stats.by_region %}
+            <div class="region-card">
+                <div class="region-name">{{ r.region }}</div>
+                <div class="region-stats">
+                    <div><strong>{{ r.municipalities }}</strong> municipalities</div>
+                    <div><strong>{{ r.establishments|int }}</strong> establishments</div>
+                    <div>Avg GTPI: <strong>{{ r.avg_gtpi }}</strong></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Department Table -->
+    <section class="table-section">
+        <div class="section-header">
+            <h2>Department Breakdown</h2>
+            <input type="text" id="searchDept" placeholder="Search department..." class="search-input">
+        </div>
+        <div class="table-wrapper">
+            <table id="deptTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Department ↕</th>
+                        <th onclick="sortTable(1)">Municipalities ↕</th>
+                        <th onclick="sortTable(2)">Gastro Estab. ↕</th>
+                        <th onclick="sortTable(3)">Avg GTPI ↕</th>
+                        <th onclick="sortTable(4)">Best GTPI ↕</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in stats.by_department %}
+                    <tr>
+                        <td>{{ d.dept_name }}</td>
+                        <td>{{ d.municipalities }}</td>
+                        <td>{{ d.establishments|int }}</td>
+                        <td><span class="gtpi-badge gtpi-{{ 'high' if d.avg_gtpi >= 40 else 'mid' if d.avg_gtpi >= 20 else 'low' }}">{{ d.avg_gtpi }}</span></td>
+                        <td><span class="gtpi-badge gtpi-{{ 'high' if d.best_gtpi >= 60 else 'mid' if d.best_gtpi >= 30 else 'low' }}">{{ d.best_gtpi }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p class="footer-project">Intelligent System for Identifying Gastronomic Tourism Potential Zones in Colombia</p>
+        <p class="footer-author">Julian Sanchez</p>
+        <p class="footer-uni">Universidad de Cundinamarca · 2026</p>
+    </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroMap Colombia — Gastronomic Tourism Intelligence System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="topbar">
+    <div class="topbar-inner">
+        <div class="logo">
+            <span class="logo-icon">🍽️</span>
+            <span class="logo-text">GastroMap <span class="logo-accent">Colombia</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/methodology" class="nav-link">Methodology</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="hero-badge">Machine Learning · Open Data · Flask</div>
+        <h1>Intelligent System for Identifying<br><span class="highlight">Gastronomic Tourism Potential</span><br>Zones in Colombia</h1>
+        <p class="hero-subtitle">
+            A data-driven approach that combines climatic, geographic, and tourism open data
+            to calculate a composite index — the <strong>GTPI</strong> (Gastronomic Tourism Potential Index) —
+            for every municipality in Colombia. Built with Python, Flask, Pandas, and unsupervised
+            machine learning techniques.
+        </p>
+        <div class="hero-actions">
+            <a href="/dashboard" class="btn-primary">Explore the Dashboard →</a>
+            <a href="/methodology" class="btn-secondary">Read the Methodology</a>
+        </div>
+    </section>
+
+    <!-- Key Numbers -->
+    <section class="landing-stats">
+        <div class="stat-card stat-primary">
+            <div class="stat-number">{{ "{:,}".format(stats.total_gastro_establishments) }}</div>
+            <div class="stat-label">Gastronomy establishments analyzed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_municipalities }}</div>
+            <div class="stat-label">Municipalities scored</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.with_gastronomy }}</div>
+            <div class="stat-label">With registered gastronomy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ "{:,}".format(stats.total_tourism_providers) }}</div>
+            <div class="stat-label">Total tourism providers</div>
+        </div>
+    </section>
+
+    <!-- Project Overview -->
+    <section class="landing-section">
+        <div class="section-header">
+            <h2>Project Overview</h2>
+        </div>
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="ov-icon">🎯</div>
+                <h3>Objective</h3>
+                <p>Design and implement an intelligent system that identifies Colombian municipalities
+                   with high potential for gastronomic tourism by leveraging publicly available climatic
+                   and geographic datasets, combined with the National Tourism Registry (RNT).</p>
+            </div>
+            <div class="overview-card">
+                <div class="ov-icon">📊</div>
+                <h3>Data Sources</h3>
+                <p>Three open data sources are merged: <strong>DIVIPOLA</strong> (DANE) for geographic coordinates
+                   of 1,122 municipalities, the <strong>RNT</strong> (MinCIT) with 686,967 tourism service providers,
+                   and a <strong>climate estimation model</strong> based on Colombia's thermal floor system.</p>
+            </div>
+            <div class="overview-card">
+                <div class="ov-icon">🤖</div>
+                <h3>Machine Learning Approach</h3>
+                <p>We apply <strong>feature engineering</strong> with log-transformations and min-max normalization,
+                   a <strong>weighted composite scoring</strong> model to build the GTPI, and <strong>binning classification</strong>
+                   to group municipalities into five tiers from "Very Low" to "Very High" potential.</p>
+            </div>
+            <div class="overview-card">
+                <div class="ov-icon">🗺️</div>
+                <h3>Interactive Visualization</h3>
+                <p>The results are displayed on a dark-themed Leaflet.js map with color-coded markers,
+                   filterable by region, department, and GTPI range. A REST API serves the processed
+                   data for programmatic access.</p>
+            </div>
+            <div class="overview-card">
+                <div class="ov-icon">⚙️</div>
+                <h3>Technology Stack</h3>
+                <p>Built with <strong>Python 3</strong>, <strong>Flask</strong> (web framework),
+                   <strong>Pandas</strong> &amp; <strong>NumPy</strong> (data processing),
+                   <strong>Leaflet.js</strong> (mapping), and the <strong>datos.gov.co API</strong>
+                   for real-time data access.</p>
+            </div>
+            <div class="overview-card">
+                <div class="ov-icon">📈</div>
+                <h3>Key Findings</h3>
+                <p>Bogotá (95.1), Cartagena (89.4), and Medellín (83.1) lead the GTPI ranking.
+                   The <strong>Andean</strong> and <strong>Caribbean</strong> regions concentrate 85%
+                   of all gastronomy establishments. Only 371 out of 1,015 active municipalities
+                   have registered gastronomy, revealing significant development opportunity.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline Diagram -->
+    <section class="landing-section">
+        <div class="section-header">
+            <h2>Data Pipeline at a Glance</h2>
+            <p>From raw open data to actionable gastronomic tourism scores</p>
+        </div>
+        <div class="pipeline-visual">
+            <div class="pipe-step">
+                <div class="pipe-num">1</div>
+                <div class="pipe-label">Ingestion</div>
+                <div class="pipe-desc">DIVIPOLA (.xlsx)<br>RNT (.csv)<br>686K+ records</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">2</div>
+                <div class="pipe-label">Cleaning</div>
+                <div class="pipe-desc">Code normalization<br>Null removal<br>Type casting</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">3</div>
+                <div class="pipe-label">Feature Engineering</div>
+                <div class="pipe-desc">Aggregation<br>Log transforms<br>Climate estimation</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">4</div>
+                <div class="pipe-label">Merging</div>
+                <div class="pipe-desc">Join on DIVIPOLA<br>municipality code<br>(5-digit key)</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">5</div>
+                <div class="pipe-label">Scoring &amp; Classification</div>
+                <div class="pipe-desc">Weighted GTPI<br>Min-max norm<br>5-tier binning</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+                <div class="pipe-num">6</div>
+                <div class="pipe-label">Visualization</div>
+                <div class="pipe-desc">Flask API<br>Leaflet map<br>Dashboard</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="landing-cta">
+        <h2>Ready to explore the data?</h2>
+        <p>Dive into the interactive dashboard to see which municipalities have the highest gastronomic tourism potential.</p>
+        <a href="/dashboard" class="btn-primary">Open Dashboard →</a>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <p class="footer-project">Intelligent System for Identifying Gastronomic Tourism Potential Zones in Colombia</p>
+        <p class="footer-author">Julian Sanchez</p>
+        <p class="footer-uni">Universidad de Cundinamarca · 2026</p>
+    </div>
+</footer>
+
+</body>
+</html>
