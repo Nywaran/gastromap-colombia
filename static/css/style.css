@@ -171,3 +171,23 @@ footer{max-width:1400px;margin:0 auto;padding:36px 24px;border-top:1px solid rgb
 .pipeline-visual{flex-direction:column;align-items:center}.pipe-arrow{transform:rotate(90deg);padding:4px}
 .before-after{flex-direction:column}.ba-arrow{transform:rotate(90deg);padding:4px 0}
 }
+
+/* === Nav Dropdowns === */
+.nav-dropdown{position:relative;display:inline-block}
+.nav-drop-trigger{cursor:pointer;user-select:none}
+.nav-drop-menu{display:none;position:absolute;top:100%;left:0;background:var(--surface);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:6px;min-width:220px;z-index:2000;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.nav-dropdown:hover .nav-drop-menu{display:block}
+.nav-drop-item{display:block;padding:8px 14px;border-radius:6px;text-decoration:none;color:var(--text-muted);font-size:13px;transition:var(--tr);white-space:nowrap}
+.nav-drop-item:hover{background:var(--surface2);color:var(--text)}
+.nav-drop-item.active{color:var(--accent)}
+
+/* === Vertical Pipeline === */
+.pipeline-vertical{display:flex;flex-direction:column;gap:0;position:relative;padding-left:24px;border-left:2px solid rgba(245,158,11,.3);margin-left:16px}
+.pv-step{display:flex;gap:16px;align-items:flex-start;padding:12px 0;position:relative}
+.pv-step::before{content:'';position:absolute;left:-29px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.pv-num{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.pv-content{flex:1}.pv-content h3{font-size:14px;margin-bottom:4px}.pv-content p{font-size:12px;color:var(--text-muted);line-height:1.5}
+
+@media(max-width:768px){
+.nav-drop-menu{position:static;display:block;padding:0 0 0 16px;background:transparent;border:none;box-shadow:none}
+}

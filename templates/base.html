@@ -20,9 +20,28 @@
         <div class="nav-links">
             <a href="/" class="nav-link {{ 'active' if active_page == 'home' }}">Home</a>
             <a href="/crisp-ml" class="nav-link {{ 'active' if active_page == 'crisp' }}">CRISP-ML</a>
-            <a href="/business-understanding" class="nav-link {{ 'active' if active_page == 'business' }}">Business</a>
-            <a href="/data-understanding" class="nav-link {{ 'active' if active_page == 'data' }}">Data Understanding</a>
-            <a href="/data-engineering" class="nav-link {{ 'active' if active_page == 'engineering' }}">Data Engineering</a>
+            <div class="nav-dropdown">
+                <span class="nav-link nav-drop-trigger {{ 'active' if active_page in ['business','data','engineering'] }}">Phases 1-2 ▾</span>
+                <div class="nav-drop-menu">
+                    <a href="/business-understanding" class="nav-drop-item {{ 'active' if active_page == 'business' }}">Business Understanding</a>
+                    <a href="/data-understanding" class="nav-drop-item {{ 'active' if active_page == 'data' }}">Data Understanding</a>
+                    <a href="/data-engineering" class="nav-drop-item {{ 'active' if active_page == 'engineering' }}">Data Engineering</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <span class="nav-link nav-drop-trigger {{ 'active' if active_page in ['model','evaluation'] }}">Phases 3-4 ▾</span>
+                <div class="nav-drop-menu">
+                    <a href="/model-engineering" class="nav-drop-item {{ 'active' if active_page == 'model' }}">Model Engineering</a>
+                    <a href="/model-evaluation" class="nav-drop-item {{ 'active' if active_page == 'evaluation' }}">Model Evaluation</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <span class="nav-link nav-drop-trigger {{ 'active' if active_page in ['deploy','monitoring'] }}">Phases 5-6 ▾</span>
+                <div class="nav-drop-menu">
+                    <a href="/deployment" class="nav-drop-item {{ 'active' if active_page == 'deploy' }}">Deployment</a>
+                    <a href="/monitoring" class="nav-drop-item {{ 'active' if active_page == 'monitoring' }}">Monitoring</a>
+                </div>
+            </div>
             <a href="/dashboard" class="nav-link {{ 'active' if active_page == 'dashboard' }}">Dashboard</a>
         </div>
         <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>

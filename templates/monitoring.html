@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% set active_page = "monitoring" %}
+{% block title %}Monitoring & Maintenance — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 6</div>
+    <h1>Monitoring &amp; Maintenance</h1>
+    <p>Continuous supervision, drift detection, model updating, and risk review</p>
+</section>
+
+<section class="method-content">
+
+    <div class="method-card">
+        <h2>6.1 Continuous Supervision</h2>
+        <div class="phase-grid">
+            <div class="phase-item">
+                <h3>Data Source Monitoring</h3>
+                <p>The RNT dataset on datos.gov.co is updated periodically by MinCIT. The system should 
+                   re-download and re-process the RNT at least quarterly to capture new restaurant registrations, 
+                   closures, and category changes. The last update used in this version was May 16, 2026.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Ranking Stability Checks</h3>
+                <p>After each data refresh, compare the new top 20 ranking against the previous version. 
+                   If more than 5 municipalities change positions by more than 10 places, investigate whether 
+                   the shift reflects real changes or data quality issues.</p>
+            </div>
+            <div class="phase-item">
+                <h3>API Health Monitoring</h3>
+                <p>Monitor the Flask application's response times and availability on Render.com. 
+                   The /api/municipalities endpoint should respond in under 500ms. Set up uptime 
+                   monitoring (e.g., UptimeRobot) to detect outages.</p>
+            </div>
+            <div class="phase-item">
+                <h3>User Feedback Collection</h3>
+                <p>Track which filters and regions users interact with most on the dashboard. 
+                   High engagement with specific regions may indicate demand for more granular data 
+                   in those areas.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>6.2 Drift Detection</h2>
+        <p class="card-text">Data drift occurs when the statistical properties of input data change over time, 
+           potentially degrading model performance. For this system, key drift indicators include:</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Drift Type</th><th>What to Monitor</th><th>Threshold</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Volume Drift</td>
+                        <td>Total RNT records per refresh</td>
+                        <td>>10% change between quarters</td>
+                        <td>Investigate if new categories were added or if data pipeline changed</td>
+                    </tr>
+                    <tr>
+                        <td>Category Drift</td>
+                        <td>Number of gastronomy subcategories</td>
+                        <td>New subcategories appearing</td>
+                        <td>Update regex filter if new gastronomy-related categories are introduced</td>
+                    </tr>
+                    <tr>
+                        <td>Distribution Drift</td>
+                        <td>GTPI score distribution shape</td>
+                        <td>Classification counts change >20%</td>
+                        <td>Re-evaluate bin edges or normalization parameters</td>
+                    </tr>
+                    <tr>
+                        <td>Geographic Drift</td>
+                        <td>New municipalities in DIVIPOLA</td>
+                        <td>Any new codes appearing</td>
+                        <td>Add to geographic base and re-run climate estimation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>6.3 Model Updating Strategy</h2>
+        <div class="pipeline-vertical">
+            <div class="pv-step">
+                <div class="pv-num">Q</div>
+                <div class="pv-content">
+                    <h3>Quarterly Data Refresh</h3>
+                    <p>Download the latest RNT from datos.gov.co. Re-run <code>python data_processor.py</code> 
+                       to regenerate processed_dataset.json, eda_report.json, and engineering_report.json. 
+                       Push to GitHub → Render auto-deploys.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">A</div>
+                <div class="pv-content">
+                    <h3>Annual Weight Review</h3>
+                    <p>Once per year, review GTPI weights with tourism domain experts. Consider implementing 
+                       AHP (Analytic Hierarchy Process) with pairwise comparisons to derive data-informed weights. 
+                       Document any weight changes and their justification.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">E</div>
+                <div class="pv-content">
+                    <h3>Event-Driven Updates</h3>
+                    <p>If DANE releases updated DIVIPOLA codes (e.g., new municipalities created), or if IDEAM 
+                       makes historical climate data available via API, trigger an immediate pipeline update 
+                       to incorporate the improved data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>6.4 Risk Review</h2>
+        <div class="risk-grid">
+            <div class="risk-item risk-med">
+                <h3>Data Source Discontinuation</h3>
+                <p>If datos.gov.co changes the RNT API endpoint or format, the data pipeline will break. 
+                   Mitigation: keep a local backup of the last successful download and monitor the API 
+                   status in the quarterly refresh script.</p>
+                <span class="risk-tag">Medium Risk</span>
+            </div>
+            <div class="risk-item risk-low">
+                <h3>Platform Migration</h3>
+                <p>Render.com's free tier may change terms or impose limitations. The application is 
+                   platform-agnostic (standard Flask + Gunicorn) and can be deployed to Railway, Fly.io, 
+                   or any cloud provider with minimal configuration changes.</p>
+                <span class="risk-tag">Low Risk</span>
+            </div>
+            <div class="risk-item risk-med">
+                <h3>Regulatory Changes</h3>
+                <p>If MinCIT modifies the RNT category taxonomy (adding, renaming, or merging gastronomy 
+                   categories), the regex filter <code>GASTRO|BAR(?!RAN)</code> may need updating to 
+                   capture new categories or exclude false positives.</p>
+                <span class="risk-tag">Medium Risk</span>
+            </div>
+            <div class="risk-item risk-low">
+                <h3>Security</h3>
+                <p>The application is read-only (no user input stored, no database, no authentication). 
+                   Attack surface is minimal. HTTPS is provided by Render.com. Dependencies should be 
+                   updated periodically for security patches.</p>
+                <span class="risk-tag">Low Risk</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>6.5 Future Improvements Roadmap</h2>
+        <div class="phase-grid">
+            <div class="phase-item">
+                <h3>Real Climate Data</h3>
+                <p>Integrate WorldClim bioclimatic variables or IDEAM weather station data via API 
+                   to replace the coordinate-based estimation model with actual measurements.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Demand-Side Metrics</h3>
+                <p>Incorporate Google Trends data, TripAdvisor reviews, or DANE tourism survey results 
+                   to add a demand dimension to the GTPI formula.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Supervised Model</h3>
+                <p>Use current GTPI classifications as pseudo-labels to train a supervised model 
+                   (Gradient Boosting, Random Forest) that can predict potential from raw features 
+                   without the full pipeline.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Temporal Weighting</h3>
+                <p>Assign higher weights to recently registered establishments (2024-2026) vs older ones 
+                   (2019-2021) to capture growth momentum and identify emerging destinations.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

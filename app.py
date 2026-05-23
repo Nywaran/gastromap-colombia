@@ -62,6 +62,28 @@ def dashboard():
     return render_template('dashboard.html', stats=stats)
 
 
+@app.route('/model-engineering')
+def model_engineering():
+    _, stats = get_data()
+    return render_template('model_engineering.html', stats=stats)
+
+
+@app.route('/model-evaluation')
+def model_evaluation():
+    _, stats = get_data()
+    return render_template('model_evaluation.html', stats=stats)
+
+
+@app.route('/deployment')
+def deployment():
+    return render_template('deployment.html')
+
+
+@app.route('/monitoring')
+def monitoring():
+    return render_template('monitoring.html')
+
+
 # ── API Routes ───────────────────────────────────────────────
 
 @app.route('/api/municipalities')

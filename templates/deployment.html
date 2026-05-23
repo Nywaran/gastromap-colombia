@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% set active_page = "deploy" %}
+{% block title %}Deployment — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 5</div>
+    <h1>Deployment</h1>
+    <p>Production implementation, documentation, and operational protocols</p>
+</section>
+
+<section class="method-content">
+
+    <div class="method-card">
+        <h2>5.1 Architecture Overview</h2>
+        <div class="pipeline-visual">
+            <div class="pipe-step"><div class="pipe-num">1</div><div class="pipe-label">Raw Data</div><div class="pipe-desc">DIVIPOLA .xlsx<br>RNT .csv<br>686K records</div></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step"><div class="pipe-num">2</div><div class="pipe-label">Processing</div><div class="pipe-desc">data_processor.py<br>Clean + Transform<br>Score + Classify</div></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step"><div class="pipe-num">3</div><div class="pipe-label">Cache</div><div class="pipe-desc">processed.json<br>eda_report.json<br>eng_report.json</div></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step"><div class="pipe-num">4</div><div class="pipe-label">Flask API</div><div class="pipe-desc">app.py<br>Gunicorn WSGI<br>REST endpoints</div></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step"><div class="pipe-num">5</div><div class="pipe-label">Frontend</div><div class="pipe-desc">Jinja2 templates<br>Leaflet.js map<br>CSS/JS</div></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step"><div class="pipe-num">6</div><div class="pipe-label">Render.com</div><div class="pipe-desc">Public URL<br>Auto-deploy<br>HTTPS</div></div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>5.2 Production Environment</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Component</th><th>Technology</th><th>Details</th></tr></thead>
+                <tbody>
+                    <tr><td>Platform</td><td>Render.com</td><td>Free tier, auto-deploy from GitHub on push</td></tr>
+                    <tr><td>WSGI Server</td><td>Gunicorn 22.0</td><td>Production-grade Python HTTP server</td></tr>
+                    <tr><td>Framework</td><td>Flask 3.0</td><td>Lightweight Python web framework</td></tr>
+                    <tr><td>Data Store</td><td>JSON files (in-memory)</td><td>No database — 444KB loaded on startup</td></tr>
+                    <tr><td>Frontend Maps</td><td>Leaflet.js 1.9 + CARTO tiles</td><td>Interactive dark-themed map</td></tr>
+                    <tr><td>Version Control</td><td>GitHub</td><td>Public repository with progressive commits</td></tr>
+                    <tr><td>SSL/HTTPS</td><td>Render automatic</td><td>Free SSL certificate provided by platform</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>5.3 Deployment Configuration</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+                <tbody>
+                    <tr><td>Build Command</td><td><code>bash build.sh</code></td></tr>
+                    <tr><td>Start Command</td><td><code>gunicorn app:app --bind 0.0.0.0:$PORT</code></td></tr>
+                    <tr><td>Runtime</td><td>Python 3</td></tr>
+                    <tr><td>Plan</td><td>Free</td></tr>
+                    <tr><td>Auto-Deploy</td><td>Yes (on git push to main)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>5.4 REST API Documentation</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Parameters</th></tr></thead>
+                <tbody>
+                    <tr><td>GET</td><td><code>/api/municipalities</code></td><td>All municipalities with GTPI</td><td>region, department, min_gtpi, classification</td></tr>
+                    <tr><td>GET</td><td><code>/api/stats</code></td><td>Summary statistics</td><td>None</td></tr>
+                    <tr><td>GET</td><td><code>/api/departments</code></td><td>Department list for filters</td><td>None</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>5.5 Application Pages</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Route</th><th>Page</th><th>CRISP-ML Phase</th></tr></thead>
+                <tbody>
+                    <tr><td><code>/</code></td><td>Home — Project Overview</td><td>—</td></tr>
+                    <tr><td><code>/crisp-ml</code></td><td>CRISP-ML Methodology</td><td>—</td></tr>
+                    <tr><td><code>/business-understanding</code></td><td>Business Understanding</td><td>Phase 1</td></tr>
+                    <tr><td><code>/data-understanding</code></td><td>Data Understanding</td><td>Phase 1</td></tr>
+                    <tr><td><code>/data-engineering</code></td><td>Data Engineering</td><td>Phase 2</td></tr>
+                    <tr><td><code>/model-engineering</code></td><td>Model Engineering</td><td>Phase 3</td></tr>
+                    <tr><td><code>/model-evaluation</code></td><td>Model Evaluation</td><td>Phase 4</td></tr>
+                    <tr><td><code>/deployment</code></td><td>Deployment (this page)</td><td>Phase 5</td></tr>
+                    <tr><td><code>/monitoring</code></td><td>Monitoring & Maintenance</td><td>Phase 6</td></tr>
+                    <tr><td><code>/dashboard</code></td><td>Interactive Dashboard</td><td>Phase 5</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>5.6 Live URLs</h2>
+        <div class="landing-stats">
+            <div class="stat-card stat-primary">
+                <div class="stat-label" style="margin-bottom:8px">Public Application</div>
+                <div style="font-size:14px;color:var(--accent)">https://gastromap-colombia.onrender.com</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" style="margin-bottom:8px">Source Code</div>
+                <div style="font-size:14px;color:var(--accent)">https://github.com/Nywaran/gastromap-colombia</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

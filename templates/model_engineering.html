@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% set active_page = "model" %}
+{% block title %}Model Engineering — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 3</div>
+    <h1>Model Engineering</h1>
+    <p>Algorithm selection, training process, hyperparameter tuning, and validation</p>
+</section>
+
+<section class="method-content">
+
+    <div class="method-card">
+        <h2>3.1 Algorithm Selection</h2>
+        <div class="ml-highlight">
+            <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px">
+                Unsupervised Learning — Weighted Composite Scoring with Feature Engineering
+            </div>
+            <p>No labeled training data exists classifying Colombian municipalities by gastronomic tourism
+               potential. Without a target variable (Y), supervised methods cannot be applied. We construct
+               the target through feature engineering and domain-informed weighting.</p>
+        </div>
+
+        <h3>Why This Approach Was Chosen</h3>
+        <div class="phase-grid">
+            <div class="phase-item">
+                <h3>No Ground Truth Labels</h3>
+                <p>There is no existing dataset that says "Bogota = High potential, Chía = Medium." 
+                   Supervised classification (Random Forest, SVM, Logistic Regression) requires labeled 
+                   examples to train on. These labels do not exist for this problem.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Ranking Over Grouping</h3>
+                <p>Clustering (K-Means, DBSCAN) groups data by similarity but does not produce ordinal 
+                   rankings. Stakeholders need to know WHICH municipalities rank highest, not just which 
+                   ones are similar. A composite index directly answers this question.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Interpretability</h3>
+                <p>A weighted linear combination is fully transparent — every component's contribution 
+                   is visible and adjustable. Black-box models would obscure why a municipality scored 
+                   high or low, reducing trust and actionability.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Domain Expert Alignment</h3>
+                <p>Weights are assigned based on domain knowledge of gastronomic tourism. Gastronomy 
+                   density (35%) matters more than climate comfort (15%) because it directly measures 
+                   the core variable. This mirrors how tourism experts prioritize factors.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>3.2 Training Process</h2>
+        <p class="card-text">Since this is an unsupervised scoring model, "training" consists of the 
+           feature engineering and scoring pipeline, not gradient descent or parameter fitting.</p>
+
+        <div class="pipeline-vertical">
+            <div class="pv-step">
+                <div class="pv-num">1</div>
+                <div class="pv-content">
+                    <h3>Data Ingestion</h3>
+                    <p>Load DIVIPOLA (1,122 municipalities) and RNT (686,967 records) from disk.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">2</div>
+                <div class="pv-content">
+                    <h3>Gastronomy Filtering</h3>
+                    <p>Apply regex <code>GASTRO|BAR(?!RAN)</code> to extract 13,237 gastronomy establishments.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">3</div>
+                <div class="pv-content">
+                    <h3>Feature Aggregation</h3>
+                    <p>GROUP BY municipality code → compute gastro_count, gastro_variety, gastro_employees, total_providers.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">4</div>
+                <div class="pv-content">
+                    <h3>Climate Estimation</h3>
+                    <p>Classify each municipality into a natural region → assign temperature, precipitation → compute climate_index.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">5</div>
+                <div class="pv-content">
+                    <h3>Dataset Merging</h3>
+                    <p>Three LEFT JOINs on muni_code: DIVIPOLA+Climate + Gastronomy + Tourism. Fill nulls with 0.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">6</div>
+                <div class="pv-content">
+                    <h3>Log Transformation</h3>
+                    <p>Apply log(1+x) to gastro_count, total_providers, gastro_employees to handle extreme skew.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">7</div>
+                <div class="pv-content">
+                    <h3>Min-Max Normalization</h3>
+                    <p>Scale all 5 components to [0, 1]: x_norm = (x - x_min) / (x_max - x_min).</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">8</div>
+                <div class="pv-content">
+                    <h3>Weighted Scoring</h3>
+                    <p>GTPI = 0.35×GD + 0.20×GV + 0.20×TI + 0.15×CC + 0.10×GE → scale to 0-100.</p>
+                </div>
+            </div>
+            <div class="pv-step">
+                <div class="pv-num">9</div>
+                <div class="pv-content">
+                    <h3>Classification</h3>
+                    <p>Equal-width binning into 5 tiers: Very Low, Low, Medium, High, Very High.</p>
+                </div>
+            </div>
+        </div>
+        <p class="card-text" style="margin-top:16px">The entire pipeline runs in approximately <strong>8 seconds</strong> 
+           on a standard laptop, processing 686,967 input records into 1,015 scored municipalities.</p>
+    </div>
+
+    <div class="method-card">
+        <h2>3.3 Hyperparameters</h2>
+        <p class="card-text">The model's "hyperparameters" are the component weights and classification bin edges:</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Parameter</th><th>Value</th><th>Justification</th></tr></thead>
+                <tbody>
+                    <tr><td>GD Weight</td><td>0.35</td><td>Highest — directly measures core variable (gastronomic offering)</td></tr>
+                    <tr><td>GV Weight</td><td>0.20</td><td>Variety enriches tourist experience — second tier importance</td></tr>
+                    <tr><td>TI Weight</td><td>0.20</td><td>Infrastructure enables tourism — equal to variety</td></tr>
+                    <tr><td>CC Weight</td><td>0.15</td><td>Climate is contextual, not central to gastronomy</td></tr>
+                    <tr><td>GE Weight</td><td>0.10</td><td>Employment is a secondary indicator of sector maturity</td></tr>
+                    <tr><td>Bin edges</td><td>[0, 20, 40, 60, 80, 100]</td><td>Equal-width for intuitive interpretation</td></tr>
+                    <tr><td>Log base</td><td>log(1+x)</td><td>Natural log with +1 shift to handle zeros</td></tr>
+                    <tr><td>Climate optimal T</td><td>23°C</td><td>Center of comfort range (18-28°C)</td></tr>
+                    <tr><td>Climate optimal P</td><td>1500 mm/yr</td><td>Moderate rainfall — not too dry, not too wet</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="card-text" style="margin-top:12px">In future iterations, these could be optimized using 
+           AHP (Analytic Hierarchy Process) with expert pairwise comparisons, or PCA to derive data-driven weights.</p>
+    </div>
+
+    <div class="method-card">
+        <h2>3.4 GTPI Formula</h2>
+        <div class="formula-box" style="font-size:18px">
+            <code>GTPI = 0.35 × GD + 0.20 × GV + 0.20 × TI + 0.15 × CC + 0.10 × GE</code>
+        </div>
+        <div class="dimension-grid">
+            <div class="dimension"><div class="dim-weight">35%</div><h3>Gastronomy Density (GD)</h3><p>Log-normalized count of gastronomy establishments</p></div>
+            <div class="dimension"><div class="dim-weight">20%</div><h3>Gastronomy Variety (GV)</h3><p>Number of distinct subcategories</p></div>
+            <div class="dimension"><div class="dim-weight">20%</div><h3>Tourism Infrastructure (TI)</h3><p>Log-normalized total tourism providers</p></div>
+            <div class="dimension"><div class="dim-weight">15%</div><h3>Climate Comfort (CC)</h3><p>Temperature and precipitation comfort index</p></div>
+            <div class="dimension"><div class="dim-weight">10%</div><h3>Gastronomy Employment (GE)</h3><p>Log-normalized employee count</p></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
