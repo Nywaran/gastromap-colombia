@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set active_page = "crisp" %}
+{% block title %}CRISP-ML Methodology — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <h1>CRISP-ML Methodology</h1>
+    <p>Cross-Industry Standard Process for Machine Learning</p>
+</section>
+
+<section class="method-content">
+    <div class="method-card">
+        <h2>What is CRISP-ML?</h2>
+        <div class="ml-highlight">
+            <p>CRISP-ML is an evolution of CRISP-DM (Cross-Industry Standard Process for Data Mining), 
+               specifically adapted for modern Machine Learning projects. It establishes iterative, 
+               well-defined phases oriented toward business results.</p>
+            <p style="margin-top:10px">Unlike its predecessor, CRISP-ML emphasizes model integration into real systems and 
+               post-deployment monitoring — fundamental aspects in the lifecycle of current AI solutions.
+               <em>(Schmid, Wurst &amp; Wirth, 2020)</em></p>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 1 — Business &amp; Data Understanding</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Business Objectives</h3><p>Translate business needs into concrete machine learning project goals.</p></div>
+            <div class="phase-item"><h3>Key Questions</h3><p>Identify the specific questions the model must answer.</p></div>
+            <div class="phase-item"><h3>Data Assessment</h3><p>Explore data quality, relevance, and sufficiency.</p></div>
+            <div class="phase-item"><h3>Feasibility Analysis</h3><p>Consider limitations and risks, ensuring technical and organizational viability.</p></div>
+        </div>
+        <a href="/business-understanding" class="btn-primary" style="margin-top:16px;display:inline-block">View our Business Understanding →</a>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 2 — Data Engineering</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Selection</h3><p>Identify relevant data sources.</p></div>
+            <div class="phase-item"><h3>Cleaning</h3><p>Correct errors and handle missing values.</p></div>
+            <div class="phase-item"><h3>Transformation</h3><p>Create new features and normalize data.</p></div>
+            <div class="phase-item"><h3>Documentation</h3><p>Record all transformations performed.</p></div>
+        </div>
+        <a href="/data-engineering" class="btn-primary" style="margin-top:16px;display:inline-block">View our Data Engineering →</a>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 3 — Model Engineering</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Algorithm Selection</h3><p>Choose appropriate techniques based on problem type and data characteristics.</p></div>
+            <div class="phase-item"><h3>Training</h3><p>Apply prepared data to the selected algorithm.</p></div>
+            <div class="phase-item"><h3>Hyperparameter Tuning</h3><p>Optimize configurations for improved performance.</p></div>
+            <div class="phase-item"><h3>Validation</h3><p>Verify performance with data not used during training.</p></div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 4 — Model Evaluation</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Performance Metrics</h3><p>Select and apply appropriate indicators to measure model effectiveness.</p></div>
+            <div class="phase-item"><h3>Cross-Validation</h3><p>Evaluate the model's generalization capacity with different data subsets.</p></div>
+            <div class="phase-item"><h3>Risk Analysis</h3><p>Identify potential issues such as overfitting, underfitting, or biases.</p></div>
+            <div class="phase-item"><h3>Expert Review</h3><p>Validate results with domain specialists for practical relevance.</p></div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 5 — Deployment</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Production Implementation</h3><p>Integrate the validated model into the real operating environment.</p></div>
+            <div class="phase-item"><h3>Documentation &amp; Training</h3><p>Create technical and user manuals along with training sessions.</p></div>
+            <div class="phase-item"><h3>Protocol Establishment</h3><p>Define procedures for continuous monitoring and incident management.</p></div>
+        </div>
+        <a href="/dashboard" class="btn-primary" style="margin-top:16px;display:inline-block">View our Deployed Dashboard →</a>
+    </div>
+
+    <div class="method-card">
+        <h2>Phase 6 — Monitoring &amp; Maintenance</h2>
+        <div class="phase-grid">
+            <div class="phase-item"><h3>Continuous Supervision</h3><p>Regular monitoring of model performance in production.</p></div>
+            <div class="phase-item"><h3>Drift Detection</h3><p>Early identification of performance deterioration due to data changes.</p></div>
+            <div class="phase-item"><h3>Model Updating</h3><p>Periodic retraining with new data to maintain effectiveness.</p></div>
+            <div class="phase-item"><h3>Risk Review</h3><p>Continuous vulnerability assessment and quality control adaptation.</p></div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>References</h2>
+        <div class="ref-list">
+            <p>KDnuggets (2025). <em>The Machine Learning Lifecycle.</em></p>
+            <p>ML-Ops.org (n.d.). <em>CRISP-ML(Q): The ML Lifecycle Process.</em></p>
+            <p>Schmid, S., Wurst, M., &amp; Wirth, R. (2020). <em>Towards CRISP-ML(Q): A Machine Learning Process Model with Quality Assurance Methodology.</em></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

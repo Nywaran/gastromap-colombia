@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% set active_page = "engineering" %}
+{% block title %}Data Engineering — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 3</div>
+    <h1>Data Engineering</h1>
+    <p>Cleaning, transformation, feature engineering, and normalization</p>
+</section>
+
+<section class="method-content">
+
+    <!-- Cleaning -->
+    <div class="method-card">
+        <h2>1. Data Cleaning</h2>
+        {% for step in eng.cleaning_steps %}
+        <div class="eng-step">
+            <h3>{{ step.step }}</h3>
+            <p class="card-text">{{ step.description }}</p>
+            <div class="eng-impact"><strong>Impact:</strong> {{ step.impact }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Null Handling -->
+    <div class="method-card">
+        <h2>2. Null Value Handling</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Column(s)</th><th>Strategy</th><th>Reason</th></tr></thead>
+                <tbody>
+                {% for item in eng.null_handling %}
+                <tr>
+                    <td><code>{{ item.column }}</code></td>
+                    <td><span class="gtpi-badge gtpi-mid">{{ item.strategy }}</span></td>
+                    <td>{{ item.reason }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Transformations -->
+    <div class="method-card">
+        <h2>3. Data Transformations</h2>
+        {% for t in eng.transformations %}
+        <div class="eng-step">
+            <h3>{{ t.name }}</h3>
+            <div class="formula-box"><code>{{ t.formula }}</code></div>
+            {% if t.columns is defined and t.columns is iterable and t.columns is not string %}
+            <p class="card-text"><strong>Applied to:</strong> {{ t.columns | join(', ') }}</p>
+            {% endif %}
+            <p class="card-text">{{ t.reason }}</p>
+            {% if t.before is defined %}
+            <div class="before-after">
+                <div class="ba-item ba-before"><strong>Before:</strong> {{ t.before }}</div>
+                <div class="ba-arrow">→</div>
+                <div class="ba-item ba-after"><strong>After:</strong> {{ t.after }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Feature Engineering -->
+    <div class="method-card">
+        <h2>4. Feature Engineering</h2>
+        <p class="card-text">The following features were engineered from raw data to construct the GTPI scoring model:</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Feature</th><th>Type</th><th>Operation</th><th>Description</th></tr></thead>
+                <tbody>
+                {% for f in eng.feature_engineering %}
+                <tr>
+                    <td><code>{{ f.feature }}</code></td>
+                    <td><span class="source-tag">{{ f.type }}</span></td>
+                    <td><code>{{ f.operation }}</code></td>
+                    <td>{{ f.description }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Normalization -->
+    <div class="method-card">
+        <h2>5. Normalization and Scaling</h2>
+        <div class="eng-step">
+            <h3>Min-Max Normalization</h3>
+            <div class="formula-box"><code>x_normalized = (x - x_min) / (x_max - x_min)</code></div>
+            <p class="card-text">All five GTPI components are scaled to the [0, 1] range using min-max normalization. 
+               This ensures that features with different original scales (counts ranging 0-3,854 vs. index values 
+               ranging 0-1) contribute proportionally to the weighted composite score.</p>
+        </div>
+        <div class="eng-step">
+            <h3>Log Transformation Justification</h3>
+            <p class="card-text">Three features (<code>gastro_count</code>, <code>total_providers</code>, 
+               <code>gastro_employees</code>) exhibit extreme right-skew: Bogotá has 3,854 gastronomy establishments 
+               while the median municipality has only 5. Without log transformation, min-max normalization would 
+               compress 99% of municipalities into the [0, 0.03] range, making the index meaningless for 
+               differentiating non-capital cities. The <code>log(1+x)</code> transformation compresses the range 
+               from [0, 3854] to [0, 8.26], producing a near-normal distribution that allows meaningful 
+               discrimination across all tiers.</p>
+        </div>
+    </div>
+
+    <!-- GTPI Formula -->
+    <div class="method-card">
+        <h2>6. Scoring Model — GTPI</h2>
+        <div class="formula-box" style="font-size:18px">
+            <code>GTPI = 0.35 × GD + 0.20 × GV + 0.20 × TI + 0.15 × CC + 0.10 × GE</code>
+        </div>
+        <div class="dimension-grid">
+            <div class="dimension">
+                <div class="dim-weight">35%</div>
+                <h3>Gastronomy Density (GD)</h3>
+                <p>Log-normalized count of gastronomy establishments. Highest weight — directly measures the core variable.</p>
+            </div>
+            <div class="dimension">
+                <div class="dim-weight">20%</div>
+                <h3>Gastronomy Variety (GV)</h3>
+                <p>Number of distinct subcategories. More diversity indicates a richer culinary offering.</p>
+            </div>
+            <div class="dimension">
+                <div class="dim-weight">20%</div>
+                <h3>Tourism Infrastructure (TI)</h3>
+                <p>Log-normalized total tourism providers. Tourists need hotels and transport, not just restaurants.</p>
+            </div>
+            <div class="dimension">
+                <div class="dim-weight">15%</div>
+                <h3>Climate Comfort (CC)</h3>
+                <p>Comfort index (0-1). Optimal range: 18-28°C, moderate rainfall (~1500 mm/year).</p>
+            </div>
+            <div class="dimension">
+                <div class="dim-weight">10%</div>
+                <h3>Gastronomy Employment (GE)</h3>
+                <p>Log-normalized employee count. Indicates sector maturity and economic scale.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classification -->
+    <div class="method-card">
+        <h2>7. Classification (Equal-Width Binning)</h2>
+        <div class="table-wrapper">
+            <table class="clasif-table">
+                <thead><tr><th>GTPI Range</th><th>Classification</th><th>Count</th><th>Interpretation</th></tr></thead>
+                <tbody>
+                    <tr><td>80 — 100</td><td><span class="tag tag-5">Very High</span></td><td>{{ stats.by_classification.get('Very High', 0) }}</td><td>Consolidated gastronomic destination</td></tr>
+                    <tr><td>60 — 80</td><td><span class="tag tag-4">High</span></td><td>{{ stats.by_classification.get('High', 0) }}</td><td>High potential with good variety and support</td></tr>
+                    <tr><td>40 — 60</td><td><span class="tag tag-3">Medium</span></td><td>{{ stats.by_classification.get('Medium', 0) }}</td><td>Emerging potential, growing offering</td></tr>
+                    <tr><td>20 — 40</td><td><span class="tag tag-2">Low</span></td><td>{{ stats.by_classification.get('Low', 0) }}</td><td>Incipient offering, development opportunity</td></tr>
+                    <tr><td>0 — 20</td><td><span class="tag tag-1">Very Low</span></td><td>{{ stats.by_classification.get('Very Low', 0) }}</td><td>Minimal presence, requires investment</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Final Dataset -->
+    <div class="method-card">
+        <h2>8. Final Processed Dataset</h2>
+        <div class="landing-stats" style="margin-top:16px">
+            <div class="stat-card">
+                <div class="stat-number">{{ "{:,}".format(eng.final_dataset_shape.rows) }}</div>
+                <div class="stat-label">Municipalities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ eng.final_dataset_shape.columns }}</div>
+                <div class="stat-label">Columns</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ eng.final_dataset_shape.features_used }}</div>
+                <div class="stat-label">GTPI Features</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ eng.final_dataset_shape.classification_bins }}</div>
+                <div class="stat-label">Classification Tiers</div>
+            </div>
+        </div>
+        <p class="card-text" style="margin-top:16px">The fully processed dataset is served via the Flask REST API and visualized 
+           on the <a href="/dashboard" style="color:var(--accent)">interactive dashboard</a>.</p>
+    </div>
+</section>
+{% endblock %}

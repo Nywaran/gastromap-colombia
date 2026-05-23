@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% set active_page = "data" %}
+{% block title %}Data Understanding — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 2</div>
+    <h1>Data Understanding</h1>
+    <p>Exploratory Data Analysis, variable profiling, quality evaluation, and correlations</p>
+</section>
+
+<section class="method-content">
+
+    <!-- Dataset 1: DIVIPOLA -->
+    <div class="method-card">
+        <h2>Dataset 1 — {{ eda.divipola.name }}</h2>
+        <div class="source-meta-bar">
+            <span><strong>Source:</strong> {{ eda.divipola.source }}</span>
+            <span><strong>Format:</strong> {{ eda.divipola.format }}</span>
+            <span><strong>Records:</strong> {{ "{:,}".format(eda.divipola.total_records) }}</span>
+            <span><strong>Columns:</strong> {{ eda.divipola.total_columns }}</span>
+        </div>
+
+        <h3>Variable Analysis</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Column</th><th>Type</th><th>Non-Null</th><th>Null</th><th>Null %</th><th>Unique</th></tr></thead>
+                <tbody>
+                {% for col in eda.divipola.columns %}
+                <tr>
+                    <td><code>{{ col.name }}</code></td>
+                    <td>{{ col.dtype }}</td>
+                    <td>{{ "{:,}".format(col.non_null) }}</td>
+                    <td>{{ col.null_count }}</td>
+                    <td><span class="gtpi-badge {{ 'gtpi-high' if col.null_pct == 0 else 'gtpi-low' }}">{{ col.null_pct }}%</span></td>
+                    <td>{{ col.unique }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Statistical Summary (Numeric Variables)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Variable</th><th>Mean</th><th>Std Dev</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>
+                <tbody>
+                {% for name, s in eda.divipola.numeric_stats.items() %}
+                <tr>
+                    <td><code>{{ name }}</code></td>
+                    <td>{{ s.mean }}</td>
+                    <td>{{ s.std }}</td>
+                    <td>{{ s.min }}</td>
+                    <td>{{ s.median }}</td>
+                    <td>{{ s.max }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Key Observations</h3>
+        <div class="obs-grid">
+            <div class="obs-item">
+                <strong>{{ eda.divipola.unique_counts.departments }}</strong> departments and 
+                <strong>{{ eda.divipola.unique_counts.municipalities }}</strong> municipalities with valid coordinates.
+            </div>
+            <div class="obs-item">
+                Latitude range [{{ eda.divipola.numeric_stats.latitude.min }}° to {{ eda.divipola.numeric_stats.latitude.max }}°] 
+                spans Colombia from south (Amazon) to north (Caribbean).
+            </div>
+            <div class="obs-item">
+                Longitude range [{{ eda.divipola.numeric_stats.longitude.min }}° to {{ eda.divipola.numeric_stats.longitude.max }}°] 
+                covers Pacific coast to eastern plains.
+            </div>
+        </div>
+    </div>
+
+    <!-- Dataset 2: RNT -->
+    <div class="method-card">
+        <h2>Dataset 2 — {{ eda.rnt.name }}</h2>
+        <div class="source-meta-bar">
+            <span><strong>Source:</strong> {{ eda.rnt.source }}</span>
+            <span><strong>Format:</strong> {{ eda.rnt.format }}</span>
+            <span><strong>Records:</strong> {{ "{:,}".format(eda.rnt.total_records) }}</span>
+            <span><strong>Columns:</strong> {{ eda.rnt.total_columns }}</span>
+        </div>
+
+        <h3>Variable Analysis</h3>
+        <div class="table-wrapper" style="max-height:400px;overflow-y:auto">
+            <table>
+                <thead><tr><th>Column</th><th>Type</th><th>Non-Null</th><th>Null</th><th>Null %</th><th>Unique</th></tr></thead>
+                <tbody>
+                {% for col in eda.rnt.columns %}
+                <tr>
+                    <td><code>{{ col.name }}</code></td>
+                    <td>{{ col.dtype }}</td>
+                    <td>{{ "{:,}".format(col.non_null) }}</td>
+                    <td>{{ "{:,}".format(col.null_count) }}</td>
+                    <td><span class="gtpi-badge {{ 'gtpi-high' if col.null_pct < 1 else 'gtpi-mid' if col.null_pct < 20 else 'gtpi-low' }}">{{ col.null_pct }}%</span></td>
+                    <td>{{ "{:,}".format(col.unique) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Missing Value Analysis</h3>
+        {% if eda.rnt.missing_values %}
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Column</th><th>Missing Count</th><th>Missing %</th><th>Severity</th></tr></thead>
+                <tbody>
+                {% for col_name, info in eda.rnt.missing_values.items() %}
+                <tr>
+                    <td><code>{{ col_name }}</code></td>
+                    <td>{{ "{:,}".format(info.count) }}</td>
+                    <td>{{ info.percentage }}%</td>
+                    <td><span class="gtpi-badge {{ 'gtpi-low' if info.percentage > 20 else 'gtpi-mid' if info.percentage > 5 else 'gtpi-high' }}">
+                        {{ 'Critical' if info.percentage > 20 else 'Moderate' if info.percentage > 5 else 'Low' }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="card-text">No missing values detected in any column.</p>
+        {% endif %}
+
+        <h3>Category Distribution (Top 10)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Category</th><th>Count</th><th>Proportion</th></tr></thead>
+                <tbody>
+                {% for cat, count in eda.rnt.category_distribution.items() %}
+                <tr>
+                    <td>{{ cat }}</td>
+                    <td>{{ "{:,}".format(count) }}</td>
+                    <td>{{ "%.1f"|format(count / eda.rnt.total_records * 100) }}%</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Gastronomy Subcategories ({{ "{:,}".format(eda.rnt.gastronomy_count) }} establishments)</h3>
+        <div class="table-wrapper" style="max-height:300px;overflow-y:auto">
+            <table>
+                <thead><tr><th>Subcategory</th><th>Count</th></tr></thead>
+                <tbody>
+                {% for sub, count in eda.rnt.gastronomy_subcategories.items() %}
+                <tr>
+                    <td>{{ sub }}</td>
+                    <td>{{ "{:,}".format(count) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Top 10 Departments by Tourism Providers</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Department</th><th>Providers</th></tr></thead>
+                <tbody>
+                {% for dept, count in eda.rnt.top_departments.items() %}
+                <tr><td>{{ dept }}</td><td>{{ "{:,}".format(count) }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if eda.rnt.numeric_stats %}
+        <h3>Employee Statistics</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Variable</th><th>Mean</th><th>Std Dev</th><th>Min</th><th>Median</th><th>Max</th></tr></thead>
+                <tbody>
+                {% for name, s in eda.rnt.numeric_stats.items() %}
+                <tr>
+                    <td><code>{{ name }}</code></td>
+                    <td>{{ s.mean }}</td><td>{{ s.std }}</td>
+                    <td>{{ s.min }}</td><td>{{ s.median }}</td><td>{{ s.max }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Data Quality Summary -->
+    <div class="method-card">
+        <h2>Data Quality Evaluation</h2>
+        <div class="phase-grid">
+            <div class="phase-item feasible">
+                <h3>Completeness ✓</h3>
+                <p>DIVIPOLA has zero null values in key columns. RNT has minimal missing data in non-critical fields. 
+                   All join keys (municipality codes) are fully populated.</p>
+            </div>
+            <div class="phase-item feasible">
+                <h3>Consistency ✓</h3>
+                <p>Municipality codes follow the DIVIPOLA standard (5 digits). After zero-padding normalization, 
+                   cross-dataset joins work reliably with 100% key match rate.</p>
+            </div>
+            <div class="phase-item feasible">
+                <h3>Volume ✓</h3>
+                <p>686,967 RNT records and 1,122 municipalities far exceed the minimum 1,000-record threshold. 
+                   The dataset provides statistical significance for all analyses.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Timeliness ⚠</h3>
+                <p>RNT data spans 2019-2026 and was last updated May 2026. DIVIPOLA coordinates are current. 
+                   Climate data is estimated, not real-time.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Correlation Analysis</h2>
+        <p class="card-text">A correlation matrix was computed for all numeric variables in the RNT dataset. 
+           The key finding is that <strong>NUMERO_DE_EMPLEADOS</strong> (employee count) correlates moderately 
+           with establishment size and category, confirming it as a valid proxy for sector maturity. 
+           Geographic codes (department, municipality) show no meaningful correlation with operational 
+           variables, as expected — location codes are identifiers, not predictive features.</p>
+        <p class="card-text">The full correlation matrix is available via the <code>/api/stats</code> endpoint 
+           and was used to validate that the five GTPI components capture independent dimensions of 
+           gastronomic tourism potential.</p>
+    </div>
+</section>
+{% endblock %}

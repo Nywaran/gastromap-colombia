@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% set active_page = "business" %}
+{% block title %}Business Understanding — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">Phase 1</div>
+    <h1>Business Understanding</h1>
+    <p>Problem context, objectives, feasibility, and expected impact</p>
+</section>
+
+<section class="method-content">
+    <div class="method-card">
+        <h2>Problem Context</h2>
+        <p class="card-text">Colombia is one of the most biodiverse countries in the world, with five distinct natural regions 
+           (Andean, Caribbean, Pacific, Orinoquia, and Amazon), each offering unique culinary traditions shaped by 
+           geography, climate, and cultural heritage. Gastronomic tourism has become a growing segment worldwide, 
+           yet Colombia lacks a systematic, data-driven tool to identify which municipalities hold the highest 
+           potential for this type of tourism.</p>
+        <p class="card-text">Currently, tourism promotion decisions are made based on intuition, historical reputation, or political 
+           priorities rather than quantitative analysis. This leads to over-investment in already-established 
+           destinations while municipalities with genuine gastronomic potential remain undiscovered and underfunded.</p>
+        <p class="card-text">The problem is compounded by the dispersion of relevant data across multiple government agencies (DANE, 
+           MinCIT, IDEAM), each with different formats, coding standards, and update frequencies. No integrated 
+           system exists that cross-references geographic, climatic, and tourism registry data to produce 
+           actionable insights about gastronomic tourism potential.</p>
+    </div>
+
+    <div class="method-card">
+        <h2>Business Objectives</h2>
+        <div class="obj-grid">
+            <div class="obj-item">
+                <div class="obj-num">01</div>
+                <h3>Identify High-Potential Zones</h3>
+                <p>Determine which Colombian municipalities have the strongest combination of gastronomic 
+                   offering, tourism infrastructure, and favorable climate for culinary tourism development.</p>
+            </div>
+            <div class="obj-item">
+                <div class="obj-num">02</div>
+                <h3>Create a Quantitative Index</h3>
+                <p>Develop a reproducible, transparent scoring system (GTPI) that ranks all municipalities 
+                   on a 0-100 scale, enabling objective comparison and prioritization.</p>
+            </div>
+            <div class="obj-item">
+                <div class="obj-num">03</div>
+                <h3>Integrate Open Data Sources</h3>
+                <p>Demonstrate how publicly available government datasets (DIVIPOLA, RNT, IDEAM) can be 
+                   merged and transformed into a unified analytical dataset using ML techniques.</p>
+            </div>
+            <div class="obj-item">
+                <div class="obj-num">04</div>
+                <h3>Deploy an Accessible Tool</h3>
+                <p>Build and publish an interactive web application that visualizes results on a map, 
+                   allowing stakeholders to explore, filter, and understand the data without technical knowledge.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Questions the Model Must Answer</h2>
+        <div class="question-list">
+            <div class="question-item">
+                <span class="q-icon">❓</span>
+                <p>Which Colombian municipalities have the highest potential for gastronomic tourism based on available open data?</p>
+            </div>
+            <div class="question-item">
+                <span class="q-icon">❓</span>
+                <p>How does the gastronomic offering (density and variety) distribute across Colombia's five natural regions?</p>
+            </div>
+            <div class="question-item">
+                <span class="q-icon">❓</span>
+                <p>What role does climate comfort play in determining a municipality's attractiveness for food tourism?</p>
+            </div>
+            <div class="question-item">
+                <span class="q-icon">❓</span>
+                <p>Are there municipalities with strong gastronomy but weak tourism infrastructure (or vice versa) representing development opportunities?</p>
+            </div>
+            <div class="question-item">
+                <span class="q-icon">❓</span>
+                <p>How many municipalities have zero registered gastronomy despite having tourism activity, and where are they?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Project Feasibility</h2>
+        <div class="phase-grid">
+            <div class="phase-item feasible">
+                <h3>Data Availability ✓</h3>
+                <p>All three datasets (DIVIPOLA, RNT, climate) are publicly available through Colombian government 
+                   open data portals at no cost. The RNT alone contains 686,967 records — far exceeding the minimum 
+                   1,000 required for meaningful analysis.</p>
+            </div>
+            <div class="phase-item feasible">
+                <h3>Technical Feasibility ✓</h3>
+                <p>The required tools (Python, Pandas, Flask, Leaflet.js) are mature, well-documented, and 
+                   free. The dataset fits in memory on any modern computer. No GPU or specialized hardware needed.</p>
+            </div>
+            <div class="phase-item feasible">
+                <h3>Join Key Availability ✓</h3>
+                <p>All datasets share the 5-digit DIVIPOLA municipality code, enabling reliable cross-referencing 
+                   without fuzzy matching or manual mapping.</p>
+            </div>
+            <div class="phase-item feasible">
+                <h3>Deployment Feasibility ✓</h3>
+                <p>The processed dataset (444KB JSON) is small enough for free-tier hosting on Render.com. 
+                   No database server required — the app loads everything into memory on startup.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Risks and Limitations</h2>
+        <div class="risk-grid">
+            <div class="risk-item risk-high">
+                <h3>Climate Model Approximation</h3>
+                <p>Temperature and precipitation are estimated from coordinates and region classification, 
+                   not from actual weather station measurements. Accuracy is limited for Andean municipalities 
+                   where altitude varies dramatically within the same coordinates.</p>
+                <span class="risk-tag">High Impact</span>
+            </div>
+            <div class="risk-item risk-med">
+                <h3>Static Weight Assignment</h3>
+                <p>The GTPI component weights (35/20/20/15/10) are domain-informed but not data-driven. 
+                   Different weight configurations could produce different rankings, particularly for 
+                   mid-tier municipalities.</p>
+                <span class="risk-tag">Medium Impact</span>
+            </div>
+            <div class="risk-item risk-med">
+                <h3>Supply-Side Only</h3>
+                <p>The model measures supply (establishments, infrastructure) but not demand (visitor flows, 
+                   social media sentiment, Google Trends). A municipality may score high on supply but have 
+                   low actual tourist demand.</p>
+                <span class="risk-tag">Medium Impact</span>
+            </div>
+            <div class="risk-item risk-low">
+                <h3>Temporal Aggregation</h3>
+                <p>RNT records spanning 2019-2026 are aggregated without temporal weighting. Recent growth 
+                   trends are not captured differently from historical presence.</p>
+                <span class="risk-tag">Low Impact</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="method-card">
+        <h2>Expected Impact</h2>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <div class="ov-icon">🏛️</div>
+                <h3>Policy Makers</h3>
+                <p>Evidence-based tool for allocating tourism development funds to municipalities with genuine 
+                   potential rather than political connections.</p>
+            </div>
+            <div class="impact-item">
+                <div class="ov-icon">📊</div>
+                <h3>Researchers</h3>
+                <p>Reproducible methodology and open dataset for further studies on gastronomic tourism, 
+                   regional development, or feature weight optimization.</p>
+            </div>
+            <div class="impact-item">
+                <div class="ov-icon">🍽️</div>
+                <h3>Tourism Industry</h3>
+                <p>Entrepreneurs can identify underserved municipalities with high GTPI scores as opportunities 
+                   for new restaurant, hotel, or tour operator investments.</p>
+            </div>
+            <div class="impact-item">
+                <div class="ov-icon">🎓</div>
+                <h3>Academic Community</h3>
+                <p>Demonstration of CRISP-ML methodology applied to a real-world problem using exclusively 
+                   open data and open-source tools.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

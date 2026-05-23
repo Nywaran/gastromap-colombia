@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% set active_page = "home" %}
+{% block title %}GastroMap Colombia — Gastronomic Tourism Intelligence{% endblock %}
+
+{% block content %}
+<section class="landing-hero">
+    <div class="hero-badge">CRISP-ML · Open Data · Flask · Python</div>
+    <h1>Intelligent System for Identifying<br><span class="highlight">Gastronomic Tourism Potential</span><br>Zones in Colombia</h1>
+    <p class="hero-subtitle">
+        A data-driven system that combines climatic, geographic, and tourism open data
+        to calculate a composite index — the <strong>GTPI</strong> (Gastronomic Tourism Potential Index) —
+        for every municipality in Colombia, following the CRISP-ML methodology.
+    </p>
+    <div class="hero-actions">
+        <a href="/dashboard" class="btn-primary">Explore Dashboard →</a>
+        <a href="/crisp-ml" class="btn-secondary">CRISP-ML Methodology</a>
+    </div>
+</section>
+
+<section class="landing-stats">
+    <div class="stat-card stat-primary">
+        <div class="stat-number">{{ "{:,}".format(stats.total_gastro_establishments) }}</div>
+        <div class="stat-label">Gastronomy establishments analyzed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.total_municipalities }}</div>
+        <div class="stat-label">Municipalities scored</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.with_gastronomy }}</div>
+        <div class="stat-label">With registered gastronomy</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ "{:,}".format(stats.total_tourism_providers) }}</div>
+        <div class="stat-label">Total tourism providers</div>
+    </div>
+</section>
+
+<section class="landing-section">
+    <div class="section-header"><h2>Project Phases — CRISP-ML</h2></div>
+    <div class="pipeline-visual">
+        <a href="/business-understanding" class="pipe-step pipe-link">
+            <div class="pipe-num">1</div>
+            <div class="pipe-label">Business Understanding</div>
+            <div class="pipe-desc">Problem context<br>Objectives &amp; goals<br>Feasibility</div>
+        </a>
+        <div class="pipe-arrow">→</div>
+        <a href="/data-understanding" class="pipe-step pipe-link">
+            <div class="pipe-num">2</div>
+            <div class="pipe-label">Data Understanding</div>
+            <div class="pipe-desc">EDA &amp; profiling<br>Quality analysis<br>Correlations</div>
+        </a>
+        <div class="pipe-arrow">→</div>
+        <a href="/data-engineering" class="pipe-step pipe-link">
+            <div class="pipe-num">3</div>
+            <div class="pipe-label">Data Engineering</div>
+            <div class="pipe-desc">Cleaning<br>Transformations<br>Feature engineering</div>
+        </a>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+            <div class="pipe-num">4</div>
+            <div class="pipe-label">Model Engineering</div>
+            <div class="pipe-desc">GTPI scoring<br>Weighted composite<br>Classification</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+            <div class="pipe-num">5</div>
+            <div class="pipe-label">Evaluation</div>
+            <div class="pipe-desc">Ranking analysis<br>Regional patterns<br>Validation</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <a href="/dashboard" class="pipe-step pipe-link">
+            <div class="pipe-num">6</div>
+            <div class="pipe-label">Deployment</div>
+            <div class="pipe-desc">Flask app<br>Render.com<br>Interactive map</div>
+        </a>
+    </div>
+</section>
+
+<section class="landing-section">
+    <div class="section-header"><h2>Technology Stack</h2></div>
+    <div class="tech-grid">
+        <div class="tech">Python 3</div>
+        <div class="tech">Flask 3.0</div>
+        <div class="tech">Pandas</div>
+        <div class="tech">NumPy</div>
+        <div class="tech">Leaflet.js</div>
+        <div class="tech">Gunicorn</div>
+        <div class="tech">Render.com</div>
+        <div class="tech">datos.gov.co API</div>
+    </div>
+</section>
+{% endblock %}
