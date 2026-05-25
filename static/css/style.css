@@ -191,3 +191,16 @@ footer{max-width:1400px;margin:0 auto;padding:36px 24px;border-top:1px solid rgb
 @media(max-width:768px){
 .nav-drop-menu{position:static;display:block;padding:0 0 0 16px;background:transparent;border:none;box-shadow:none}
 }
+
+/* === Model Engineering === */
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.model-info{}.model-metrics{}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.metric{background:var(--bg);padding:14px;border-radius:8px;text-align:center}
+.metric-val{font-size:20px;font-weight:700;color:var(--accent);font-family:var(--font-display)}
+.metric-val.metric-best{color:#10b981}
+.metric-label{font-size:10px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.chart-container{background:var(--bg);border-radius:var(--radius);padding:8px;margin:12px 0;text-align:center;overflow-x:auto}
+.chart-container img{max-width:100%;height:auto;border-radius:8px}
+.best-row td{background:rgba(16,185,129,.05)!important}
+@media(max-width:768px){.model-grid{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}}

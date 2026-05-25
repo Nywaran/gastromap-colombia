@@ -1,8 +1,14 @@
+"""
+Flask Application — GastroMap Colombia
+Gastronomic Tourism Intelligence System following CRISP-ML methodology.
+"""
+
 from flask import Flask, render_template, jsonify, request
 from data_processor import (
     build_dataset, get_dataset, get_summary_stats,
     get_eda_report, get_engineering_report
 )
+from model_trainer import get_model_report
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -65,7 +71,8 @@ def dashboard():
 @app.route('/model-engineering')
 def model_engineering():
     _, stats = get_data()
-    return render_template('model_engineering.html', stats=stats)
+    model_report = get_model_report()
+    return render_template('model_engineering.html', stats=stats, mr=model_report)
 
 
 @app.route('/model-evaluation')

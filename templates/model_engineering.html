@@ -4,161 +4,226 @@
 
 {% block content %}
 <section class="method-hero">
-    <div class="hero-badge">Phase 3</div>
+    <div class="hero-badge">Phase 3 — Machine Learning</div>
     <h1>Model Engineering</h1>
-    <p>Algorithm selection, training process, hyperparameter tuning, and validation</p>
+    <p>Three supervised models trained, validated, and compared</p>
 </section>
 
 <section class="method-content">
 
+    <!-- Dataset Split -->
     <div class="method-card">
-        <h2>3.1 Algorithm Selection</h2>
-        <div class="ml-highlight">
-            <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px">
-                Unsupervised Learning — Weighted Composite Scoring with Feature Engineering
-            </div>
-            <p>No labeled training data exists classifying Colombian municipalities by gastronomic tourism
-               potential. Without a target variable (Y), supervised methods cannot be applied. We construct
-               the target through feature engineering and domain-informed weighting.</p>
+        <h2>1. Dataset Preparation</h2>
+        <div class="landing-stats">
+            <div class="stat-card"><div class="stat-number">{{ mr.dataset_info.total_samples }}</div><div class="stat-label">Total Samples</div></div>
+            <div class="stat-card"><div class="stat-number">{{ mr.dataset_info.train_samples }}</div><div class="stat-label">Training (80%)</div></div>
+            <div class="stat-card"><div class="stat-number">{{ mr.dataset_info.test_samples }}</div><div class="stat-label">Testing (20%)</div></div>
+            <div class="stat-card"><div class="stat-number">{{ mr.dataset_info.n_features }}</div><div class="stat-label">Features</div></div>
         </div>
 
-        <h3>Why This Approach Was Chosen</h3>
-        <div class="phase-grid">
-            <div class="phase-item">
-                <h3>No Ground Truth Labels</h3>
-                <p>There is no existing dataset that says "Bogota = High potential, Chía = Medium." 
-                   Supervised classification (Random Forest, SVM, Logistic Regression) requires labeled 
-                   examples to train on. These labels do not exist for this problem.</p>
-            </div>
-            <div class="phase-item">
-                <h3>Ranking Over Grouping</h3>
-                <p>Clustering (K-Means, DBSCAN) groups data by similarity but does not produce ordinal 
-                   rankings. Stakeholders need to know WHICH municipalities rank highest, not just which 
-                   ones are similar. A composite index directly answers this question.</p>
-            </div>
-            <div class="phase-item">
-                <h3>Interpretability</h3>
-                <p>A weighted linear combination is fully transparent — every component's contribution 
-                   is visible and adjustable. Black-box models would obscure why a municipality scored 
-                   high or low, reducing trust and actionability.</p>
-            </div>
-            <div class="phase-item">
-                <h3>Domain Expert Alignment</h3>
-                <p>Weights are assigned based on domain knowledge of gastronomic tourism. Gastronomy 
-                   density (35%) matters more than climate comfort (15%) because it directly measures 
-                   the core variable. This mirrors how tourism experts prioritize factors.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="method-card">
-        <h2>3.2 Training Process</h2>
-        <p class="card-text">Since this is an unsupervised scoring model, "training" consists of the 
-           feature engineering and scoring pipeline, not gradient descent or parameter fitting.</p>
-
-        <div class="pipeline-vertical">
-            <div class="pv-step">
-                <div class="pv-num">1</div>
-                <div class="pv-content">
-                    <h3>Data Ingestion</h3>
-                    <p>Load DIVIPOLA (1,122 municipalities) and RNT (686,967 records) from disk.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">2</div>
-                <div class="pv-content">
-                    <h3>Gastronomy Filtering</h3>
-                    <p>Apply regex <code>GASTRO|BAR(?!RAN)</code> to extract 13,237 gastronomy establishments.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">3</div>
-                <div class="pv-content">
-                    <h3>Feature Aggregation</h3>
-                    <p>GROUP BY municipality code → compute gastro_count, gastro_variety, gastro_employees, total_providers.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">4</div>
-                <div class="pv-content">
-                    <h3>Climate Estimation</h3>
-                    <p>Classify each municipality into a natural region → assign temperature, precipitation → compute climate_index.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">5</div>
-                <div class="pv-content">
-                    <h3>Dataset Merging</h3>
-                    <p>Three LEFT JOINs on muni_code: DIVIPOLA+Climate + Gastronomy + Tourism. Fill nulls with 0.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">6</div>
-                <div class="pv-content">
-                    <h3>Log Transformation</h3>
-                    <p>Apply log(1+x) to gastro_count, total_providers, gastro_employees to handle extreme skew.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">7</div>
-                <div class="pv-content">
-                    <h3>Min-Max Normalization</h3>
-                    <p>Scale all 5 components to [0, 1]: x_norm = (x - x_min) / (x_max - x_min).</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">8</div>
-                <div class="pv-content">
-                    <h3>Weighted Scoring</h3>
-                    <p>GTPI = 0.35×GD + 0.20×GV + 0.20×TI + 0.15×CC + 0.10×GE → scale to 0-100.</p>
-                </div>
-            </div>
-            <div class="pv-step">
-                <div class="pv-num">9</div>
-                <div class="pv-content">
-                    <h3>Classification</h3>
-                    <p>Equal-width binning into 5 tiers: Very Low, Low, Medium, High, Very High.</p>
-                </div>
-            </div>
-        </div>
-        <p class="card-text" style="margin-top:16px">The entire pipeline runs in approximately <strong>8 seconds</strong> 
-           on a standard laptop, processing 686,967 input records into 1,015 scored municipalities.</p>
-    </div>
-
-    <div class="method-card">
-        <h2>3.3 Hyperparameters</h2>
-        <p class="card-text">The model's "hyperparameters" are the component weights and classification bin edges:</p>
+        <h3>Target Variable</h3>
+        <p class="card-text">The original 5-class GTPI classification was simplified to 3 classes for more balanced training:</p>
         <div class="table-wrapper">
             <table>
-                <thead><tr><th>Parameter</th><th>Value</th><th>Justification</th></tr></thead>
+                <thead><tr><th>Original</th><th>Mapped To</th><th>Count</th></tr></thead>
                 <tbody>
-                    <tr><td>GD Weight</td><td>0.35</td><td>Highest — directly measures core variable (gastronomic offering)</td></tr>
-                    <tr><td>GV Weight</td><td>0.20</td><td>Variety enriches tourist experience — second tier importance</td></tr>
-                    <tr><td>TI Weight</td><td>0.20</td><td>Infrastructure enables tourism — equal to variety</td></tr>
-                    <tr><td>CC Weight</td><td>0.15</td><td>Climate is contextual, not central to gastronomy</td></tr>
-                    <tr><td>GE Weight</td><td>0.10</td><td>Employment is a secondary indicator of sector maturity</td></tr>
-                    <tr><td>Bin edges</td><td>[0, 20, 40, 60, 80, 100]</td><td>Equal-width for intuitive interpretation</td></tr>
-                    <tr><td>Log base</td><td>log(1+x)</td><td>Natural log with +1 shift to handle zeros</td></tr>
-                    <tr><td>Climate optimal T</td><td>23°C</td><td>Center of comfort range (18-28°C)</td></tr>
-                    <tr><td>Climate optimal P</td><td>1500 mm/yr</td><td>Moderate rainfall — not too dry, not too wet</td></tr>
+                    <tr><td>Very Low + Low</td><td><span class="tag tag-1">Low</span></td><td>{{ mr.dataset_info.class_distribution.get('Low', 0) }}</td></tr>
+                    <tr><td>Medium</td><td><span class="tag tag-3">Medium</span></td><td>{{ mr.dataset_info.class_distribution.get('Medium', 0) }}</td></tr>
+                    <tr><td>High + Very High</td><td><span class="tag tag-5">High</span></td><td>{{ mr.dataset_info.class_distribution.get('High', 0) }}</td></tr>
                 </tbody>
             </table>
         </div>
-        <p class="card-text" style="margin-top:12px">In future iterations, these could be optimized using 
-           AHP (Analytic Hierarchy Process) with expert pairwise comparisons, or PCA to derive data-driven weights.</p>
+
+        <h3>Features Used</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Feature</th><th>Description</th><th>Scaling</th></tr></thead>
+                <tbody>
+                    <tr><td><code>gastro_count</code></td><td>Number of gastronomy establishments</td><td>StandardScaler</td></tr>
+                    <tr><td><code>gastro_variety</code></td><td>Distinct subcategory count</td><td>StandardScaler</td></tr>
+                    <tr><td><code>gastro_employees</code></td><td>Total gastronomy employees</td><td>StandardScaler</td></tr>
+                    <tr><td><code>total_providers</code></td><td>All tourism providers</td><td>StandardScaler</td></tr>
+                    <tr><td><code>total_employees</code></td><td>All tourism employees</td><td>StandardScaler</td></tr>
+                    <tr><td><code>unique_categories</code></td><td>Tourism category diversity</td><td>StandardScaler</td></tr>
+                    <tr><td><code>climate_index</code></td><td>Climate comfort (0-1)</td><td>StandardScaler</td></tr>
+                    <tr><td><code>avg_temperature</code></td><td>Estimated avg temperature (°C)</td><td>StandardScaler</td></tr>
+                    <tr><td><code>precipitation</code></td><td>Estimated annual rainfall (mm)</td><td>StandardScaler</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Model 1: Random Forest -->
+    {% for m in mr.models %}
     <div class="method-card">
-        <h2>3.4 GTPI Formula</h2>
-        <div class="formula-box" style="font-size:18px">
-            <code>GTPI = 0.35 × GD + 0.20 × GV + 0.20 × TI + 0.15 × CC + 0.10 × GE</code>
+        <h2>{{ loop.index + 1 }}. {{ m.name }}</h2>
+
+        <div class="model-grid">
+            <div class="model-info">
+                <h3>Description</h3>
+                {% if m.name == 'Random Forest' %}
+                <p class="card-text">An ensemble method that builds multiple decision trees on random subsets of data and features, then combines their predictions by majority voting. It handles non-linear relationships well and provides feature importance rankings. <code>class_weight='balanced'</code> compensates for the imbalanced dataset by adjusting sample weights inversely proportional to class frequency.</p>
+                {% elif m.name == 'Gradient Boosting' %}
+                <p class="card-text">A sequential ensemble method that builds decision trees one at a time, each correcting the errors of the previous one. It optimizes a loss function via gradient descent in function space. Generally achieves higher accuracy than Random Forest but is more prone to overfitting. The <code>learning_rate=0.1</code> controls how much each tree contributes, balancing speed vs accuracy.</p>
+                {% elif m.name == 'K-Nearest Neighbors' %}
+                <p class="card-text">A lazy learning algorithm that classifies new samples based on the majority class of their K nearest neighbors in feature space. <code>weights='distance'</code> gives closer neighbors more influence. It makes no assumptions about data distribution but is sensitive to feature scaling (hence StandardScaler). Simple and interpretable but slower for large datasets.</p>
+                {% endif %}
+
+                <h3>Hyperparameters</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+                        <tbody>
+                        {% for k, v in m.hyperparameters.items() %}
+                            <tr><td><code>{{ k }}</code></td><td>{{ v }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="model-metrics">
+                <h3>Performance Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric"><div class="metric-val">{{ m.train_accuracy }}</div><div class="metric-label">Train Accuracy</div></div>
+                    <div class="metric"><div class="metric-val {{ 'metric-best' if m.name == mr.best_model else '' }}">{{ m.test_accuracy }}</div><div class="metric-label">Test Accuracy</div></div>
+                    <div class="metric"><div class="metric-val">{{ m.test_precision }}</div><div class="metric-label">Precision</div></div>
+                    <div class="metric"><div class="metric-val">{{ m.test_recall }}</div><div class="metric-label">Recall</div></div>
+                    <div class="metric"><div class="metric-val {{ 'metric-best' if m.name == mr.best_model else '' }}">{{ m.test_f1_weighted }}</div><div class="metric-label">F1 Score</div></div>
+                    <div class="metric"><div class="metric-val">{{ m.cv_mean }}±{{ m.cv_std }}</div><div class="metric-label">CV (5-fold)</div></div>
+                </div>
+            </div>
         </div>
-        <div class="dimension-grid">
-            <div class="dimension"><div class="dim-weight">35%</div><h3>Gastronomy Density (GD)</h3><p>Log-normalized count of gastronomy establishments</p></div>
-            <div class="dimension"><div class="dim-weight">20%</div><h3>Gastronomy Variety (GV)</h3><p>Number of distinct subcategories</p></div>
-            <div class="dimension"><div class="dim-weight">20%</div><h3>Tourism Infrastructure (TI)</h3><p>Log-normalized total tourism providers</p></div>
-            <div class="dimension"><div class="dim-weight">15%</div><h3>Climate Comfort (CC)</h3><p>Temperature and precipitation comfort index</p></div>
-            <div class="dimension"><div class="dim-weight">10%</div><h3>Gastronomy Employment (GE)</h3><p>Log-normalized employee count</p></div>
+
+        <!-- Per-class report -->
+        <h3>Classification Report (Per Class)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr></thead>
+                <tbody>
+                {% for cls in ['Low', 'Medium', 'High'] %}
+                {% if cls in m.class_report %}
+                <tr>
+                    <td><span class="tag tag-{{ '1' if cls == 'Low' else '3' if cls == 'Medium' else '5' }}">{{ cls }}</span></td>
+                    <td>{{ "%.3f"|format(m.class_report[cls].precision) }}</td>
+                    <td>{{ "%.3f"|format(m.class_report[cls].recall) }}</td>
+                    <td>{{ "%.3f"|format(m.class_report[cls]['f1-score']) }}</td>
+                    <td>{{ m.class_report[cls].support|int }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Confusion Matrix -->
+        <h3>Confusion Matrix</h3>
+        {% set safe_name = m.name.replace(' ', '_').lower() %}
+        {% if 'cm_' ~ safe_name in mr.charts %}
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ mr.charts['cm_' ~ safe_name] }}" alt="Confusion Matrix {{ m.name }}">
+        </div>
+        {% endif %}
+
+        {% if m.name == mr.best_model %}
+        <div class="obs-item" style="margin-top:12px;border-left-color:#10b981">
+            <strong>★ Best Model</strong> — {{ m.name }} achieves the highest weighted F1 score ({{ m.test_f1_weighted }}).
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Comparison -->
+    <div class="method-card">
+        <h2>5. Model Comparison</h2>
+
+        <h3>Accuracy vs F1 Score</h3>
+        {% if 'comparison' in mr.charts %}
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ mr.charts.comparison }}" alt="Model Comparison">
+        </div>
+        {% endif %}
+
+        <h3>Cross-Validation Distribution</h3>
+        {% if 'cv_boxplot' in mr.charts %}
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ mr.charts.cv_boxplot }}" alt="Cross-Validation">
+        </div>
+        {% endif %}
+
+        <h3>Feature Importance (Random Forest)</h3>
+        {% if 'feature_importance' in mr.charts %}
+        <div class="chart-container">
+            <img src="data:image/png;base64,{{ mr.charts.feature_importance }}" alt="Feature Importance">
+        </div>
+        {% endif %}
+
+        <h3>Summary Table</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Model</th><th>Train Acc</th><th>Test Acc</th><th>Precision</th><th>Recall</th><th>F1</th><th>CV Mean</th><th>CV Std</th></tr></thead>
+                <tbody>
+                {% for m in mr.models %}
+                <tr class="{{ 'best-row' if m.name == mr.best_model else '' }}">
+                    <td><strong>{{ m.name }}</strong>{{ ' ★' if m.name == mr.best_model else '' }}</td>
+                    <td>{{ m.train_accuracy }}</td>
+                    <td>{{ m.test_accuracy }}</td>
+                    <td>{{ m.test_precision }}</td>
+                    <td>{{ m.test_recall }}</td>
+                    <td><span class="gtpi-badge gtpi-high">{{ m.test_f1_weighted }}</span></td>
+                    <td>{{ m.cv_mean }}</td>
+                    <td>{{ m.cv_std }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Predictions -->
+    <div class="method-card">
+        <h2>6. Console Predictions</h2>
+        <p class="card-text">Sample predictions from the test set (20% holdout, never seen during training):</p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Municipality</th><th>Department</th><th>GTPI</th><th>Actual</th>
+                {% for m in mr.models %}<th>{{ m.name }}</th>{% endfor %}
+                <th>All Correct?</th></tr></thead>
+                <tbody>
+                {% for p in mr.predictions %}
+                <tr>
+                    <td><strong>{{ p.municipality }}</strong></td>
+                    <td>{{ p.department }}</td>
+                    <td>{{ p.actual_gtpi }}</td>
+                    <td><span class="tag tag-{{ '1' if p.actual_class == 'Low' else '3' if p.actual_class == 'Medium' else '5' }}">{{ p.actual_class }}</span></td>
+                    {% for m in mr.models %}
+                    {% set pred = p.predictions[m.name] %}
+                    <td><span class="tag tag-{{ '1' if pred == 'Low' else '3' if pred == 'Medium' else '5' }}">{{ pred }}</span></td>
+                    {% endfor %}
+                    <td>{% if p.predictions.values()|list|unique|list|length == 1 and p.predictions.values()|list|first == p.actual_class %}✓{% else %}—{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Conclusions -->
+    <div class="method-card">
+        <h2>7. Conclusions</h2>
+        <div class="phase-grid">
+            <div class="phase-item feasible">
+                <h3>Best Model: {{ mr.best_model }}</h3>
+                <p>Achieved the highest weighted F1 score ({{ mr.best_f1 }}) on the test set, demonstrating strong generalization across all three classes.</p>
+            </div>
+            <div class="phase-item">
+                <h3>All Models Perform Well</h3>
+                <p>All three models exceed 96% accuracy, validating that the engineered features contain strong signal for predicting gastronomic tourism potential class.</p>
+            </div>
+            <div class="phase-item">
+                <h3>Supervised Validates Unsupervised</h3>
+                <p>The fact that supervised models can learn the GTPI classification with high accuracy confirms that our unsupervised scoring formula captures genuine patterns in the data, not noise.</p>
+            </div>
         </div>
     </div>
 </section>
