@@ -204,3 +204,7 @@ footer{max-width:1400px;margin:0 auto;padding:36px 24px;border-top:1px solid rgb
 .chart-container img{max-width:100%;height:auto;border-radius:8px}
 .best-row td{background:rgba(16,185,129,.05)!important}
 @media(max-width:768px){.model-grid{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* === Charts Grid === */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px;margin:12px 0}
+@media(max-width:768px){.charts-grid{grid-template-columns:1fr}}

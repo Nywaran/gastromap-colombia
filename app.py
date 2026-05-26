@@ -9,6 +9,7 @@ from data_processor import (
     get_eda_report, get_engineering_report
 )
 from model_trainer import get_model_report
+from model_evaluator import get_evaluation_report
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -78,7 +79,8 @@ def model_engineering():
 @app.route('/model-evaluation')
 def model_evaluation():
     _, stats = get_data()
-    return render_template('model_evaluation.html', stats=stats)
+    eval_report = get_evaluation_report()
+    return render_template('model_evaluation.html', stats=stats, ev=eval_report)
 
 
 @app.route('/deployment')
