@@ -208,3 +208,55 @@ footer{max-width:1400px;margin:0 auto;padding:36px 24px;border-top:1px solid rgb
 /* === Charts Grid === */
 .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px;margin:12px 0}
 @media(max-width:768px){.charts-grid{grid-template-columns:1fr}}
+
+/* === Prediction System === */
+.pred-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.pred-form-panel{}.pred-results-panel{}
+.presets-bar{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 16px;align-items:center}
+.preset-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.preset-btn{padding:6px 14px;border:1px solid rgba(245,158,11,.3);border-radius:6px;background:transparent;color:var(--accent);font-size:11px;cursor:pointer;font-family:var(--font);transition:var(--tr)}
+.preset-btn:hover{background:rgba(245,158,11,.1);border-color:var(--accent)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-group{margin-bottom:4px}
+.form-group label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:500}
+.form-hint{display:block;font-size:9px;color:var(--text-muted);opacity:.7;margin-top:1px}
+.form-group input{width:100%;padding:8px 10px;background:var(--bg);color:var(--text);border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:13px;font-family:var(--font)}
+.form-group input:focus{outline:none;border-color:var(--accent)}
+.btn-predict{width:100%;padding:14px;border:none;border-radius:10px;background:var(--accent);color:var(--bg);font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font);margin-top:12px;transition:var(--tr)}
+.btn-predict:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.error-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius);padding:16px;margin-bottom:16px;color:#ef4444;font-size:13px}
+
+/* Results */
+.result-card{border-color:var(--accent)!important;background:linear-gradient(135deg,rgba(245,158,11,.05),transparent)!important}
+.gtpi-result{display:flex;align-items:center;gap:20px;margin:16px 0}
+.gtpi-big-score{text-align:center}
+.gtpi-number{font-family:var(--font-display);font-size:64px;color:var(--accent);line-height:1}
+.gtpi-label{font-size:12px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.gtpi-class-badge{padding:10px 24px;border-radius:10px;font-weight:700;font-size:18px}
+.class-very-high{background:rgba(26,150,65,.2);color:#1a9641}
+.class-high{background:rgba(166,217,106,.2);color:#7cb342}
+.class-medium{background:rgba(254,224,139,.25);color:#b8860b}
+.class-low{background:rgba(253,174,97,.2);color:#ef6c00}
+.class-very-low{background:rgba(215,25,28,.2);color:#d7191c}
+.confidence-bar{margin-top:12px}
+.conf-label{font-size:12px;color:var(--text-muted);margin-bottom:6px}
+.conf-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.conf-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .5s ease}
+
+/* Probabilities */
+.prob-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prob-class{min-width:70px;text-align:center}
+.prob-bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden}
+.prob-bar-fill{height:100%;border-radius:6px;transition:width .5s ease}
+.prob-low{background:linear-gradient(90deg,#fdae61,#ef6c00)}.prob-medium{background:linear-gradient(90deg,#fee08b,#f9a825)}.prob-high{background:linear-gradient(90deg,#a6d96a,#1a9641)}
+.prob-pct{min-width:55px;text-align:right;font-weight:600;font-size:14px;color:var(--accent)}
+
+.model-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:var(--text-muted)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:40px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.ef-item{background:var(--bg);padding:10px;border-radius:8px;font-size:12px;color:var(--text-muted)}
+
+@media(max-width:768px){.pred-layout{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}

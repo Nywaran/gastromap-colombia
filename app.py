@@ -1,8 +1,3 @@
-"""
-Flask Application — GastroMap Colombia
-Gastronomic Tourism Intelligence System following CRISP-ML methodology.
-"""
-
 from flask import Flask, render_template, jsonify, request
 from data_processor import (
     build_dataset, get_dataset, get_summary_stats,
@@ -10,6 +5,7 @@ from data_processor import (
 )
 from model_trainer import get_model_report
 from model_evaluator import get_evaluation_report
+from predictor import predict, get_feature_ranges, PRESETS
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -86,6 +82,40 @@ def model_evaluation():
 @app.route('/deployment')
 def deployment():
     return render_template('deployment.html')
+
+
+@app.route('/prediction', methods=['GET', 'POST'])
+def prediction():
+    ranges = get_feature_ranges()
+    presets = PRESETS
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        try:
+            input_data = {}
+            for f in ['gastro_count', 'gastro_variety', 'gastro_employees',
+                       'total_providers', 'total_employees', 'unique_categories',
+                       'climate_index', 'avg_temperature', 'precipitation']:
+                val = request.form.get(f, '0')
+                input_data[f] = float(val) if val else 0.0
+            result = predict(input_data)
+        except Exception as e:
+            error = str(e)
+            logger.error(f"Prediction error: {e}")
+
+    return render_template('prediction.html', ranges=ranges, presets=presets,
+                           result=result, error=error)
+
+
+@app.route('/api/predict', methods=['POST'])
+def api_predict():
+    try:
+        data = request.get_json()
+        result = predict(data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/monitoring')

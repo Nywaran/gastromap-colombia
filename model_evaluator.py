@@ -1,9 +1,3 @@
-"""
-Model Evaluator — GastroMap Colombia
-Evaluates 3 classification + 3 regression models with full metrics, ROC curves,
-confusion matrices, and comparison charts.
-"""
-
 import pandas as pd
 import numpy as np
 import json, os, io, base64, logging, warnings

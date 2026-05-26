@@ -1,9 +1,3 @@
-"""
-Model Trainer — GastroMap Colombia
-Trains, evaluates, and compares 3 ML models for GTPI prediction.
-Uses GTPI classification as target with supervised learning.
-"""
-
 import pandas as pd
 import numpy as np
 import json

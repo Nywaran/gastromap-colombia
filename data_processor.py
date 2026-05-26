@@ -1,9 +1,3 @@
-"""
-Data Processing Pipeline — GastroMap Colombia
-Handles loading, EDA, cleaning, feature engineering, scoring, and export.
-Follows the CRISP-ML methodology phases.
-"""
-
 import pandas as pd
 import numpy as np
 import requests

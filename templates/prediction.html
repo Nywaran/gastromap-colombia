@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% set active_page = "prediction" %}
+{% block title %}Prediction System — GastroMap Colombia{% endblock %}
+
+{% block content %}
+<section class="method-hero">
+    <div class="hero-badge">⚡ Live Prediction</div>
+    <h1>Prediction System</h1>
+    <p>Enter municipality data to predict its Gastronomic Tourism Potential Index</p>
+</section>
+
+<section class="method-content">
+
+    {% if error %}
+    <div class="error-box">
+        <strong>Error:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="pred-layout">
+        <!-- INPUT FORM -->
+        <div class="pred-form-panel">
+            <div class="method-card">
+                <h2>Input Data</h2>
+                <p class="card-text">Enter the characteristics of a municipality to predict its GTPI score and classification.</p>
+
+                <!-- Presets -->
+                <div class="presets-bar">
+                    <span class="preset-label">Quick presets:</span>
+                    {% for key, preset in presets.items() %}
+                    <button type="button" class="preset-btn" onclick="loadPreset('{{ key }}')">{{ preset.name }}</button>
+                    {% endfor %}
+                </div>
+
+                <form method="POST" action="/prediction" id="predForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="gastro_count">
+                                Gastronomy Establishments
+                                <span class="form-hint">Range: {{ ranges.gastro_count.min|int }}–{{ ranges.gastro_count.max|int }} (avg: {{ ranges.gastro_count.mean|int }})</span>
+                            </label>
+                            <input type="number" id="gastro_count" name="gastro_count" min="0" step="1"
+                                   value="{{ result.input_features.gastro_count|default(10)|int if result else '' }}" placeholder="e.g., 50" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastro_variety">
+                                Gastronomy Variety (subcategories)
+                                <span class="form-hint">Range: {{ ranges.gastro_variety.min|int }}–{{ ranges.gastro_variety.max|int }}</span>
+                            </label>
+                            <input type="number" id="gastro_variety" name="gastro_variety" min="0" step="1"
+                                   value="{{ result.input_features.gastro_variety|default(3)|int if result else '' }}" placeholder="e.g., 5">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gastro_employees">
+                                Gastronomy Employees
+                                <span class="form-hint">Range: {{ ranges.gastro_employees.min|int }}–{{ ranges.gastro_employees.max|int }}</span>
+                            </label>
+                            <input type="number" id="gastro_employees" name="gastro_employees" min="0" step="1"
+                                   value="{{ result.input_features.gastro_employees|default(50)|int if result else '' }}" placeholder="e.g., 200">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="total_providers">
+                                Total Tourism Providers
+                                <span class="form-hint">Range: {{ ranges.total_providers.min|int }}–{{ ranges.total_providers.max|int }}</span>
+                            </label>
+                            <input type="number" id="total_providers" name="total_providers" min="0" step="1"
+                                   value="{{ result.input_features.total_providers|default(30)|int if result else '' }}" placeholder="e.g., 100">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="total_employees">
+                                Total Tourism Employees
+                                <span class="form-hint">Range: {{ ranges.total_employees.min|int }}–{{ ranges.total_employees.max|int }}</span>
+                            </label>
+                            <input type="number" id="total_employees" name="total_employees" min="0" step="1"
+                                   value="{{ result.input_features.total_employees|default(100)|int if result else '' }}" placeholder="e.g., 500">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unique_categories">
+                                Unique Tourism Categories
+                                <span class="form-hint">Range: {{ ranges.unique_categories.min|int }}–{{ ranges.unique_categories.max|int }}</span>
+                            </label>
+                            <input type="number" id="unique_categories" name="unique_categories" min="0" step="1"
+                                   value="{{ result.input_features.unique_categories|default(3)|int if result else '' }}" placeholder="e.g., 5">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="avg_temperature">
+                                Avg Temperature (°C)
+                                <span class="form-hint">Range: {{ ranges.avg_temperature.min }}–{{ ranges.avg_temperature.max }}</span>
+                            </label>
+                            <input type="number" id="avg_temperature" name="avg_temperature" step="0.1"
+                                   value="{{ result.input_features.avg_temperature|default(22) if result else '' }}" placeholder="e.g., 24">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precipitation">
+                                Annual Precipitation (mm)
+                                <span class="form-hint">Range: {{ ranges.precipitation.min|int }}–{{ ranges.precipitation.max|int }}</span>
+                            </label>
+                            <input type="number" id="precipitation" name="precipitation" min="0" step="1"
+                                   value="{{ result.input_features.precipitation|default(1500)|int if result else '' }}" placeholder="e.g., 1500">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="climate_index">
+                                Climate Comfort Index (0–1)
+                                <span class="form-hint">Auto-calculated from temperature &amp; precipitation</span>
+                            </label>
+                            <input type="number" id="climate_index" name="climate_index" min="0" max="1" step="0.01"
+                                   value="{{ result.input_features.climate_index|default(0.7) if result else '' }}" placeholder="auto">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-predict">⚡ Generate Prediction</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RESULTS PANEL -->
+        <div class="pred-results-panel">
+            {% if result %}
+            <!-- GTPI Score -->
+            <div class="method-card result-card">
+                <h2>Prediction Result</h2>
+                <div class="gtpi-result">
+                    <div class="gtpi-big-score">
+                        <div class="gtpi-number">{{ result.gtpi_score }}</div>
+                        <div class="gtpi-label">GTPI Score</div>
+                    </div>
+                    <div class="gtpi-class-badge class-{{ result.detail_classification|lower|replace(' ', '-') }}">
+                        {{ result.detail_classification }}
+                    </div>
+                </div>
+                <div class="confidence-bar">
+                    <div class="conf-label">Model Confidence: <strong>{{ result.confidence }}%</strong></div>
+                    <div class="conf-track"><div class="conf-fill" style="width:{{ result.confidence }}%"></div></div>
+                </div>
+            </div>
+
+            <!-- Probabilities -->
+            <div class="method-card">
+                <h2>Class Probabilities</h2>
+                {% for cls, prob in result.probabilities.items() %}
+                <div class="prob-row">
+                    <span class="prob-class tag tag-{{ '1' if cls == 'Low' else '3' if cls == 'Medium' else '5' }}">{{ cls }}</span>
+                    <div class="prob-bar-track">
+                        <div class="prob-bar-fill prob-{{ cls|lower }}" style="width:{{ prob }}%"></div>
+                    </div>
+                    <span class="prob-pct">{{ prob }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Similar Municipalities -->
+            <div class="method-card">
+                <h2>Similar Municipalities</h2>
+                <p class="card-text">Real municipalities with similar GTPI scores:</p>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Municipality</th><th>Department</th><th>GTPI</th><th>Class</th><th>Region</th></tr></thead>
+                        <tbody>
+                        {% for s in result.similar_municipalities %}
+                        <tr>
+                            <td><strong>{{ s.muni_name }}</strong></td>
+                            <td>{{ s.dept_name }}</td>
+                            <td>{{ s.GTPI }}</td>
+                            <td><span class="tag tag-{{ '1' if 'Low' in s.classification else '3' if s.classification == 'Medium' else '5' }}">{{ s.classification }}</span></td>
+                            <td>{{ s.region }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Model Info -->
+            <div class="method-card">
+                <h2>Model Information</h2>
+                <div class="model-info-grid">
+                    <div><strong>Model:</strong> {{ result.model }}</div>
+                    <div><strong>F1 Score:</strong> {{ result.model_metrics.f1 }}</div>
+                    <div><strong>R² Score:</strong> {{ result.model_metrics.r2 }}</div>
+                    <div><strong>RMSE:</strong> ±{{ result.model_metrics.rmse }} points</div>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Empty state -->
+            <div class="method-card empty-state">
+                <div class="empty-icon">🔮</div>
+                <h2>Ready to Predict</h2>
+                <p class="card-text">Fill in the form on the left with municipality data, or use a preset to quickly test the system. The Gradient Boosting model will predict the GTPI score and classification with confidence probabilities.</p>
+                <div class="empty-features">
+                    <div class="ef-item">📊 GTPI Score (0-100)</div>
+                    <div class="ef-item">🏷️ Classification (5 tiers)</div>
+                    <div class="ef-item">📈 Class Probabilities</div>
+                    <div class="ef-item">🏘️ Similar Municipalities</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+const presets = {{ presets|tojson }};
+function loadPreset(key) {
+    const p = presets[key].values;
+    for (const [k, v] of Object.entries(p)) {
+        const el = document.getElementById(k);
+        if (el) el.value = v;
+    }
+    // Auto-calc climate index
+    const temp = parseFloat(document.getElementById('avg_temperature').value) || 22;
+    const precip = parseFloat(document.getElementById('precipitation').value) || 1500;
+    const tc = Math.max(0, Math.min(1, 1 - Math.abs(temp - 23) / 15));
+    const pc = Math.max(0, Math.min(1, 1 - Math.abs(precip - 1500) / 4000));
+    document.getElementById('climate_index').value = (0.6 * tc + 0.4 * pc).toFixed(4);
+}
+
+// Auto-recalc climate index when temp or precipitation changes
+['avg_temperature', 'precipitation'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => {
+        const temp = parseFloat(document.getElementById('avg_temperature').value) || 22;
+        const precip = parseFloat(document.getElementById('precipitation').value) || 1500;
+        const tc = Math.max(0, Math.min(1, 1 - Math.abs(temp - 23) / 15));
+        const pc = Math.max(0, Math.min(1, 1 - Math.abs(precip - 1500) / 4000));
+        document.getElementById('climate_index').value = (0.6 * tc + 0.4 * pc).toFixed(4);
+    });
+});
+</script>
+{% endblock %}
